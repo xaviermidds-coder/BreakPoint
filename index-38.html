@@ -1,0 +1,1443 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>BreakPoint — Tennis Simulator v1.01</title><style>
+:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,sans-serif;background:#091a24;color:#eaf5fa}*{box-sizing:border-box}body{margin:0}header{padding:18px 20px;background:#102936;border-bottom:1px solid #2b4854;display:flex;justify-content:space-between;align-items:center;gap:10px}h1{font-size:19px;margin:0}h2{font-size:17px;margin:0 0 12px}.muted{color:#a5bdc8;font-size:12px}.layout{max-width:1300px;margin:auto;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px}.panel{background:#102733;border:1px solid #2a4752;border-radius:14px;padding:14px}.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}button,select{font:inherit;color:#effaff;background:#1b3d4c;border:1px solid #406171;border-radius:8px;padding:9px 11px;min-height:39px}button{cursor:pointer}button:hover{background:#275667}button.primary{background:#aee05b;color:#102016;font-weight:750;border:0}button:disabled{opacity:.5;cursor:not-allowed}label{font-size:12px;color:#b9cbd4;display:grid;gap:5px}select{max-width:100%;width:100%}.setup{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px}.courtWrap{position:relative;background:#0b4d4b;border-radius:10px;overflow:hidden}canvas{display:block;width:100%;height:auto;aspect-ratio:1.23;touch-action:pan-y}.courtTag{position:absolute;left:12px;top:10px;color:#e9f6fa;font-size:11px;text-shadow:0 1px 4px #0008}.score{display:grid;grid-template-columns:minmax(0,1fr) 42px 42px 55px;gap:2px;align-items:center;margin-bottom:12px;background:#071b26;border-radius:9px;overflow:hidden}.score>div{padding:10px 7px;border-bottom:1px solid #25404a;font-size:13px}.score .heading{font-size:10px;color:#99b7c5;text-align:center}.score .number{text-align:center;font-weight:800;font-variant-numeric:tabular-nums}.serving:before{content:'● ';color:#d6ec58}.row{display:flex;justify-content:space-between;gap:10px;margin:8px 0}.stat{border-bottom:1px solid #25404a;padding:7px 0}.stat .row{margin:0}.stat label{display:block;text-align:center}.bar{display:flex;height:5px;border-radius:6px;overflow:hidden;margin:5px 0;background:#416070}.bar span:first-child{background:#a7e55b}.bar span:last-child{background:#fa9c65}.status{font-weight:700;font-size:13px;margin:10px 0;min-height:36px}.log{height:170px;overflow:auto;background:#091d28;border-radius:8px;padding:9px;font-size:12px;line-height:1.7}.log div{border-bottom:1px solid #203744;padding:3px 0}.summary{display:none;position:absolute;inset:0;background:#071924ec;align-items:center;justify-content:center;padding:14px}.summary.show{display:flex}.summaryInner{background:#163543;border:1px solid #56818d;border-radius:14px;padding:20px;width:min(440px,100%);max-height:95%;overflow:auto;text-align:center}.summary h2{color:#c9ef72;font-size:23px}.summary table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0}.summary td,.summary th{padding:7px;border-bottom:1px solid #355361}.summary td:first-child{text-align:left}.pill{font-size:11px;background:#294c59;padding:5px 9px;border-radius:20px}.footer{max-width:1300px;margin:auto;padding:0 16px 20px;color:#92b1bf;font-size:11px}@media(max-width:850px){.layout{grid-template-columns:1fr}.setup{grid-template-columns:1fr 1fr}canvas{aspect-ratio:1.15}.sidebar{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sidebar .panel{min-width:0}}@media(max-width:520px){header{padding:12px}h1{font-size:16px}.layout{padding:9px;gap:9px}.panel{padding:10px}.sidebar{display:block}.sidebar .panel{margin-bottom:10px}.controls button{padding:8px;font-size:12px}.score{grid-template-columns:minmax(0,1fr) 35px 35px 42px}.score>div{font-size:11px;padding:9px 4px}}
+
+.tourPanel{max-width:1300px;margin:0 auto 15px;padding:0 16px}.tourControls{display:flex;gap:9px;flex-wrap:wrap;align-items:end;margin-bottom:10px}.tourControls label{min-width:145px}.tourRoster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:10px 0}.tourRoster label{display:flex;align-items:center;gap:6px;padding:6px;background:#183743;border-radius:7px;font-size:11px}.tourRoster input{accent-color:#b7ed63}.bracket{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:auto}.round{min-width:0}.round h3{font-size:12px;color:#b5d3df;margin:7px 0}.fixture{padding:9px;border:1px solid #355562;background:#0c2430;border-radius:9px;margin:8px 0;font-size:12px}.fixture .winner{color:#d3f879;font-weight:800}.fixture .fixtureMeta{color:#8db3c4;font-size:10px;margin-top:5px}.fixture button{margin-top:6px;min-height:29px;padding:5px 8px;font-size:11px}.tourNotice{font-size:12px;color:#d6edaa;margin:8px 0}.tourHidden{display:none}@media(max-width:650px){.bracket{grid-template-columns:repeat(3,minmax(185px,1fr))}.tourRoster{grid-template-columns:repeat(2,minmax(0,1fr))}.tourPanel{padding:0 9px}}
+.playerProfile{border:1px solid #355562;border-radius:10px;background:#0c2430;padding:12px;margin:8px 0;font-size:12px;line-height:1.7}.playerProfile strong{color:#d3f879}.profileBars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-top:8px}.profileBars span{background:#193d48;border-radius:5px;padding:5px;font-size:11px}.seasonCalendar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.seasonEvent{border:1px solid #365766;background:#102f3c;border-radius:9px;padding:10px;font-size:12px}.seasonEvent.current{border-color:#b8e86d}.seasonEvent.done{background:#1a3b34}.seasonEvent small{display:block;color:#a9c5d2;margin-top:4px}.seasonStandings{overflow:auto}.seasonStandings table{width:100%;border-collapse:collapse;font-size:12px}.seasonStandings td,.seasonStandings th{padding:7px;text-align:left;border-bottom:1px solid #2d4b58}.seasonStandings th{color:#b7d4e0}.seasonStandings td:nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums}@media(max-width:650px){.seasonCalendar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.historyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}.historyPanel{background:#0c2430;border:1px solid #355562;border-radius:10px;padding:12px;min-width:0}.historyPanel h3{margin:0 0 9px;font-size:14px}.historyPanel select{max-width:100%;background:#1b3d4c;color:#fff;border:1px solid #406171;border-radius:6px;padding:6px}.historyTable{max-height:230px;overflow:auto}.historyTable table{width:100%;border-collapse:collapse;font-size:11px}.historyTable td,.historyTable th{padding:6px;text-align:left;border-bottom:1px solid #294754}.historyPanel svg{width:100%;height:auto;display:block}.historyEmpty{font-size:12px;color:#9ab8c6}.historyControls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.historyControls label{font-size:11px}.historyMetric{font-weight:700;color:#d3f879;font-size:12px}.historyPanel .muted{line-height:1.5}@media(max-width:700px){.historyGrid{grid-template-columns:1fr}}
+
+/* v0.89 broadcast presentation */
+.courtWrap{border:1px solid #396778;box-shadow:0 10px 28px #0004}
+.broadcastBug{position:absolute;right:11px;top:10px;background:#071a25d9;border:1px solid #a4df65;color:#e6f7df;padding:7px 10px;border-radius:6px;font-size:10px;font-weight:850;letter-spacing:1.2px;pointer-events:none;z-index:2}
+.broadcastBug:before{content:"●";color:#e97567;margin-right:7px}
+.broadcastLower{position:absolute;left:50%;bottom:13px;transform:translateX(-50%);max-width:92%;width:max-content;text-align:center;background:linear-gradient(100deg,#061923ee,#174451ed);border:1px solid #6a9aa8;border-left:4px solid #b7e875;border-radius:7px;padding:9px 16px;color:#f1f9ff;font-size:12px;font-weight:700;text-shadow:0 1px 2px #000;box-shadow:0 5px 18px #0007;pointer-events:none;z-index:2}
+.score{border:1px solid #315867;box-shadow:inset 0 1px #ffffff0b}.score .number{color:#e1f5b4}.score .heading{letter-spacing:.7px}.log div:first-child{color:#d7f7ac;font-weight:700}.status{border-left:3px solid #a7e55b;padding-left:10px}
+@media(max-width:520px){.broadcastLower{font-size:10px;padding:7px 9px;bottom:7px}.broadcastBug{font-size:9px;padding:5px 7px}.courtTag{max-width:60%;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.broadcastLower,.broadcastBug{transition:none!important;animation:none!important}}
+.worldDashboard{margin:14px 0;padding:15px;border:1px solid #477c81;border-radius:13px;background:linear-gradient(135deg,#102e3b,#163f40)}.worldHeading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.worldHeading h3{margin:0 0 4px;color:#d6f79b}.worldNav{display:flex;flex-wrap:wrap;gap:5px}.worldNav button{padding:7px 9px;font-size:11px}.worldStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.worldStat,.worldCard{background:#0c2631;border:1px solid #365b66;border-radius:9px;padding:11px;min-width:0}.worldStat b{display:block;font-size:19px;color:#d6f79b;overflow-wrap:anywhere}.worldStat span{font-size:11px;color:#acc7d0}.worldColumns{display:grid;grid-template-columns:1fr 1.35fr;gap:10px}.worldCard h4{margin:0 0 9px;color:#e3eff2}.worldRow{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #244551;font-size:12px}.worldRow:last-child{border:0}.worldRow span:last-child{text-align:right}.worldNewsItem{padding:7px 0;border-bottom:1px solid #244551;font-size:12px;line-height:1.5}.worldNewsItem:last-child{border:0}@media(max-width:700px){.worldStats{grid-template-columns:repeat(2,minmax(0,1fr))}.worldColumns{grid-template-columns:1fr}}
+
+/* v0.91 mobile usability */
+.mobileNav,.mobileDisclosure{display:none}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+button,select,input{touch-action:manipulation}
+button:focus-visible,select:focus-visible,input:focus-visible,.bracket:focus-visible{outline:3px solid #d6f79b;outline-offset:2px}
+@media(max-width:700px){
+ .mobileNav{display:flex;position:sticky;top:0;z-index:50;gap:5px;padding:7px 9px;background:#0b202bf5;border-bottom:1px solid #375969;overflow-x:auto;scrollbar-width:thin}
+ .mobileNav button{flex:1 0 auto;min-height:44px;white-space:nowrap;padding:8px 10px;font-size:12px}
+ .mobileNav button[aria-current=page]{background:#aee05b;color:#102016;font-weight:750}
+ .mobileDisclosure{display:flex;width:100%;align-items:center;justify-content:space-between;min-height:46px;margin:10px 0;padding:10px 12px;font-weight:700;text-align:left;background:#1c4351;border-color:#64828e}
+ .extrasPanels,.historyGrid{display:none}
+ .extrasPanels.mobileExpanded{display:block}
+ .historyGrid.mobileExpanded{display:grid}
+ .tourControls{gap:7px}.tourControls>button{min-height:44px;flex:1 1 auto}
+ .tourControls label{flex:1 1 130px;min-width:0}
+ .setup{grid-template-columns:repeat(2,minmax(0,1fr))}.setup label:last-child{grid-column:1/-1}
+ .controls button{min-height:44px}.controls label{flex:1 1 90px}
+ .bracket{grid-template-columns:repeat(3,minmax(190px,1fr));overscroll-behavior-x:contain}
+ .worldNav button{min-height:44px}.seasonStandings{overscroll-behavior-x:contain}
+ .sidebar{display:block}.sidebar .panel{margin-bottom:10px}
+}
+@media(min-width:701px){.extrasPanels{display:contents}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+.profileDossier{display:grid;gap:12px}.profileMetrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:7px}.profileMetric{background:#193d48;padding:10px;border-radius:8px}.profileMetric b{display:block;color:#d3f879;font-size:18px}.profileSection{background:#112e3a;border:1px solid #355562;border-radius:9px;padding:10px;overflow-x:auto}.profileSection h4{margin:0 0 8px;color:#d3f879}.profileSection table{width:100%;border-collapse:collapse;font-size:12px;min-width:360px}.profileSection td,.profileSection th{padding:7px 5px;border-bottom:1px solid #355562;text-align:left}.profileSection th{color:#a9c5d2}.profileSection .muted{font-size:12px}
+
+/* BreakPoint v1.01 navigation and launch sequence */
+body{background:#071728}
+header{position:sticky;top:0;z-index:65;background:#0a1d35;border-bottom:1px solid #31506b}
+.brandTitle{font-size:clamp(23px,3vw,35px);letter-spacing:-1.5px;color:white;margin:0;font-weight:900}.brandTitle small{font-size:.48em;vertical-align:middle}.brandO{color:#f6faff}
+.bpShell{max-width:1550px;margin:auto;display:grid;grid-template-columns:205px minmax(0,1fr);gap:16px;padding:16px}
+.bpShell>.tourPanel,.bpShell>.layout{max-width:none;margin:0;padding:0;min-width:0}
+.bpSidebar{position:sticky;top:90px;align-self:start;background:#102b42;border:1px solid #355571;border-radius:14px;padding:12px;display:grid;gap:8px;box-shadow:0 10px 30px #0002}
+.bpSidebar h2{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#b4c9e1;margin:4px 8px 10px}
+.bpSidebar button{width:100%;min-height:48px;text-align:left;border:1px solid transparent;background:transparent;color:#e6f1ff;font-weight:750;padding:12px;border-radius:10px}
+.bpSidebar button[aria-current=page]{background:#d7ecff;color:#0b2440}
+.bpSidebar button:hover{border-color:#7d9db9}
+.bpSidebarToggle{display:none}
+body[data-bp-view=exhibition] #tourArea,body[data-bp-view=exhibition] #matchExtras{display:none}
+body[data-bp-view=tournament] #matchArea,body[data-bp-view=season] #matchArea{display:none}
+body[data-bp-view=tournament] #seasonContent,body[data-bp-view=season] #tourContent{display:none!important}
+body[data-bp-view=season] #tourArea,body[data-bp-view=tournament] #tourArea{display:block}
+body[data-bp-view=exhibition] #matchArea{display:grid}
+.mobileNav{display:none!important}
+.bpIntro{position:fixed;inset:0;background:#071a38;z-index:1000;display:grid;place-items:center;overflow:hidden;color:#fff}
+.bpIntro[hidden]{display:none!important}
+.bpIntroStage{position:relative;width:min(94vw,850px);height:360px;text-align:center}
+.bpIntroWord{font-size:clamp(45px,10vw,105px);font-weight:950;letter-spacing:-.065em;white-space:nowrap;line-height:1.2;animation:bpDrop .95s cubic-bezier(.16,.9,.3,1) both}
+.bpIntroO{display:inline-block;position:relative}
+.bpIntroBall{position:absolute;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#f3ffad,#c8ee40 60%,#78a80b);border:2px solid #e7fca1;box-shadow:0 0 20px #c4ff4788;z-index:3;opacity:0;left:0;top:0}
+.bpIntroBall:before,.bpIntroBall:after{content:'';position:absolute;border:2px solid #f8ffe9;border-radius:50%;width:20px;height:33px;top:2px;left:-7px;transform:rotate(26deg)}.bpIntroBall:after{left:23px;transform:rotate(-26deg)}
+.bpIntroTrail{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.bpIntroHint{position:absolute;bottom:22px;left:0;right:0;font-size:13px;color:#bed3e8;letter-spacing:2px;text-transform:uppercase}
+.bpIntroSkip{position:absolute;bottom:26px;right:28px;z-index:5;background:#16395a;border:1px solid #6a90b4;color:white;padding:10px 18px;border-radius:10px;cursor:pointer}
+@keyframes bpDrop{from{transform:translateY(-200px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:850px){.bpShell{grid-template-columns:1fr;padding:10px}.bpSidebar{position:sticky;top:66px;z-index:60;display:flex;align-items:center;overflow-x:auto;padding:7px}.bpSidebar h2{display:none}.bpSidebar button{min-width:max-content;width:auto;min-height:44px;padding:9px 12px}.bpIntroStage{height:300px}.bpIntroBall{width:30px;height:30px}.bpIntroBall:before,.bpIntroBall:after{display:none}}
+@media(prefers-reduced-motion:reduce){.bpIntroWord{animation:none}}
+</style></head><body data-bp-view="exhibition"><header><div><h1 class="brandTitle">BreakP<span class="brandO">o</span>int <small>🎾</small></h1><div class="muted">v1.01 · The tennis world is yours</div></div><span class="pill" id="matchBadge">READY</span></header><div id="bpIntro" class="bpIntro" role="dialog" aria-modal="true" aria-label="BreakPoint opening animation"><div class="bpIntroStage" id="bpIntroStage"><div class="bpIntroWord" id="bpIntroWord">BreakP<span id="bpIntroO" class="bpIntroO">o</span>int</div><svg id="bpIntroTrail" class="bpIntroTrail" aria-hidden="true"><path id="bpTrailPath" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/></svg><div id="bpIntroBall" class="bpIntroBall"></div><div class="bpIntroHint">The tennis world is yours</div></div><button id="bpSkip" class="bpIntroSkip" type="button">Skip intro</button></div><nav class="mobileNav" aria-label="Game navigation"><button type="button" data-mobile-target="matchArea" aria-current="page">🎾 Match</button><button type="button" data-mobile-target="tourArea">🏆 Tour</button><button type="button" data-mobile-target="worldDashboard">🌍 World</button><button type="button" data-mobile-target="careerAchievementsPanel">📈 Career</button><button type="button" data-mobile-target="matchExtras">📊 Stats</button></nav><div class="bpShell"><aside class="bpSidebar" aria-label="Game modes"><h2>Play BreakPoint</h2><button type="button" data-bp-mode="exhibition" aria-current="page">🎾 Exhibition</button><button type="button" data-bp-mode="tournament">🏆 Tournament</button><button type="button" data-bp-mode="season">🌍 ATP Season & Career</button></aside><section class="tourPanel" id="tourArea"><div class="panel"><h2>🏆 Tournament Mode</h2><div class="tourControls"><label>Mode<select id="mode"><option value="exhibition">Exhibition</option><option value="tournament">8-player tournament</option><option value="season">ATP-style season</option></select></label><label>Tournament surface<select id="tourSurface"><option value="hard">Hard court</option><option value="clay">Clay</option><option value="grass">Grass</option></select></label><label>Tournament seed<input id="tourSeed" type="number" min="1" max="4294967295" value="2026" style="width:130px;background:#1b3d4c;color:white;border:1px solid #406171;border-radius:8px;padding:9px"></label><button id="createTour" class="primary">Create draw</button><button id="simulateRound" disabled>Simulate round</button><button id="simulateTour" disabled>Finish tournament</button></div><div id="seasonContent" class="tourHidden"><div class="muted">Illustrative ATP-style season · twelve events including four 32-player Grand Slams · forty players · qualifying and wildcards · illustrative rankings and prize points, not the official ATP calendar.</div><div class="tourControls" style="margin-top:10px"><label>Season seed<input id="seasonSeed" type="number" min="1" max="4294967295" value="2026" style="width:130px;background:#1b3d4c;color:white;border:1px solid #406171;border-radius:8px;padding:9px"></label><button class="primary" id="createSeason">New season</button><button id="openSeasonDraw">Open next draw</button><button id="nextSeasonEvent">Simulate next event</button><button id="finishSeason">Finish season</button><button id="saveSeason">Save season</button><button id="loadSeason">Load saved</button><button id="clearSeason">Delete save</button><button id="careerStart">Start career</button><button id="careerNext">Advance career year</button></div><div id="seasonNotice" class="tourNotice"></div><section class="worldDashboard" id="worldDashboard" aria-label="Tennis World dashboard"><div class="worldHeading"><div><h3>🌍 Tennis World</h3><span class="muted" id="worldSubtitle">Your season at a glance</span></div><div class="worldNav"><button type="button" data-world-jump="seasonStandings">Rankings</button><button type="button" data-world-jump="seasonCalendar">Calendar</button><button type="button" data-world-jump="careerAchievementsPanel">Records</button><button type="button" data-world-jump="rivalryDetails">Rivalries</button></div></div><div id="worldStats" class="worldStats"></div><div class="worldColumns"><div class="worldCard"><h4>Top rankings</h4><div id="worldLeaders"></div></div><div class="worldCard"><h4>Tour news</h4><div id="worldNews"></div></div></div></section><div id="careerInfo" class="playerProfile"></div><h3>🏅 Career achievements</h3><div id="careerAchievementsPanel" class="playerProfile"></div><h3>📚 All-time record book</h3><div id="recordBookPanel" class="playerProfile" aria-live="polite"></div><div id="seasonCalendar" class="seasonCalendar"></div><div class="tourControls" style="margin-top:12px"><label>Calendar view<select id="calendarFilter"><option value="all">All surfaces</option><option value="hard">Hard</option><option value="clay">Clay</option><option value="grass">Grass</option></select></label><label>Player profile<select id="profilePlayer"></select></label></div><div id="playerProfile" class="playerProfile"></div><button class="mobileDisclosure" type="button" id="toggleHistory" aria-expanded="false" aria-controls="careerHistoryGrid">Show career history charts & rivalries <span aria-hidden="true">▾</span></button><div class="historyGrid" id="careerHistoryGrid"><section class="historyPanel"><h3>📈 Year-end rankings</h3><div class="historyControls"><label>Chart player <select id="historyPlayer"></select></label></div><div id="rankingsChart" aria-label="Year-end ranking chart"></div></section><section class="historyPanel"><h3>⚔️ Rivalry comparison</h3><div class="historyControls"><label>Player A <select id="rivalA"></select></label><label>Player B <select id="rivalB"></select></label></div><div id="rivalryDetails"></div></section><section class="historyPanel"><h3>🏆 Grand Slam history</h3><div id="slamHistory" class="historyTable"></div></section><section class="historyPanel"><h3>📅 Tournament history</h3><div class="historyControls"><label>Event <select id="historyEvent"></select></label></div><div id="eventHistory" class="historyTable"></div></section></div><h3 style="margin:14px 0 8px">Season rankings</h3><div id="seasonStandings" class="seasonStandings"></div><h3 style="margin:14px 0 8px">Current / latest tournament bracket</h3><div id="seasonBracket" class="bracket" tabindex="0" aria-label="Tournament bracket, scroll horizontally to see later rounds"></div></div><div id="tourContent" class="tourHidden"><div class="muted">Select exactly eight players for a seeded knockout draw. The first two seeds are placed in opposite halves.</div><div id="tourRoster" class="tourRoster"></div><div id="tourNotice" class="tourNotice"></div><div id="bracket" class="bracket" tabindex="0" aria-label="Tournament bracket, scroll horizontally to see later rounds"></div></div></div></section><main class="layout" id="matchArea"><section class="panel"><div class="setup"><label>Player 1<select id="player1"></select></label><label>Player 2<select id="player2"></select></label><label>Surface<select id="surface"><option value="hard">Hard court</option><option value="clay">Clay</option><option value="grass">Grass</option></select></label></div><div class="score" id="score"></div><div class="courtWrap"><canvas id="court" width="840" height="680" aria-label="Animated tennis court"></canvas><div class="broadcastBug" id="broadcastBug" aria-live="off">LIVE · EXHIBITION</div><div class="broadcastLower" id="broadcastLower" aria-live="polite">Match coverage begins when play starts</div><div class="courtTag" id="courtTag">HARD COURT · EXHIBITION</div><div class="summary" id="summary"><div class="summaryInner" id="summaryInner"></div></div></div><div class="status" id="status" aria-live="polite">Select players and start a match.</div><div class="controls"><label><input type="checkbox" id="audioEnabled"> 🔊 Stadium audio</label><label>Volume <input type="range" id="audioVolume" min="0" max="100" value="45" style="width:90px;vertical-align:middle"></label><label><input type="checkbox" id="umpireVoice" checked> Umpire voice</label></div><div class="controls"><button class="primary" id="start">Start match</button><button id="pause" disabled>Pause</button><label>Speed<select id="speed"><option value="1">1×</option><option value="2">2×</option><option value="5">5×</option><option value="10">10×</option><option value="instant">Instant</option></select></label><button id="nextGame" disabled>Skip to next game</button><button id="reset">Reset</button></div></section><aside class="sidebar" id="matchExtras"><button class="mobileDisclosure" type="button" id="toggleExtras" aria-expanded="false" aria-controls="extrasPanels">Show match stats & commentary <span aria-hidden="true">▾</span></button><div id="extrasPanels" class="extrasPanels"><section class="panel"><h2>Match statistics</h2><div id="stats"></div></section><section class="panel"><h2>Match insights</h2><div id="insights" class="muted">Insights appear after play begins.</div></section><section class="panel"><h2>🎙️ Match commentary</h2><div class="log" id="log" aria-live="off"></div><div id="timeline" class="muted" style="margin-top:9px"></div></section><section class="panel"><h2>About this build</h2><div class="muted" style="line-height:1.6">Watch simulated ATP exhibition matches with animated rallies, player-specific abilities, surface effects, real tennis scoring and point statistics. Player ratings are illustrative, not official. Version 1.0 adds stricter saved-career validation, scoring invariants, and release checks. Version 0.98 improved save consistency and tiebreak changeover pauses. Version 0.95 optimises headless match progression while retaining rally physics. Version 0.93 adds an all-time record book, winning streaks, milestones and retired-player Hall of Fame. Version 0.92 adds expanded player dossiers with surface records, season history and Grand Slam results. Version 0.91 adds mobile navigation and collapsible panels. Version 0.90 adds a unified Tennis World dashboard with live season headlines, rankings, career records and navigation. Version 0.89 added broadcast overlays, match-point commentary and presentation improvements. Earlier versions added ranking-based seeding, defending-champion priority, detailed round points and qualifying alongside expanded tennis-world participation alongside multi-year careers, evolving ratings, injury absences, retirements, emerging fictional prospects and historical season champions. Groundstrokes are struck after the bounce. Shot choice and reachability influence live rally outcomes. The calendar and ratings are illustrative rather than official ATP data.</div></section></div></aside></main></div><div class="footer">Unofficial fan-made simulation. No affiliation with the ATP or featured players. Runs locally in your browser.</div>
+<script>
+'use strict';
+const PLAYERS=[
+{id:'sinner',name:'Jannik Sinner',country:'ITA',serve:89,return:93,ground:95,movement:93,consistency:93,aggression:83,net:78,clay:92,grass:98,hard:97},
+{id:'alcaraz',name:'Carlos Alcaraz',country:'ESP',serve:87,return:94,ground:95,movement:96,consistency:92,aggression:90,net:88,clay:96,grass:93,hard:96},
+{id:'djokovic',name:'Novak Djokovic',country:'SRB',serve:86,return:98,ground:94,movement:91,consistency:96,aggression:73,net:83,clay:92,grass:96,hard:96},
+{id:'zverev',name:'Alexander Zverev',country:'GER',serve:94,return:86,ground:89,movement:83,consistency:88,aggression:75,net:72,clay:89,grass:84,hard:91},
+{id:'fritz',name:'Taylor Fritz',country:'USA',serve:92,return:78,ground:87,movement:78,consistency:85,aggression:84,net:75,clay:77,grass:89,hard:92},
+{id:'medvedev',name:'Daniil Medvedev',country:'RUS',serve:87,return:93,ground:88,movement:88,consistency:92,aggression:65,net:61,clay:74,grass:84,hard:94},
+{id:'de-minaur',name:'Alex de Minaur',country:'AUS',serve:78,return:90,ground:85,movement:98,consistency:92,aggression:69,net:77,clay:84,grass:88,hard:92},
+{id:'ruud',name:'Casper Ruud',country:'NOR',serve:82,return:85,ground:89,movement:84,consistency:89,aggression:73,net:70,clay:96,grass:76,hard:84},
+{id:'rublev',name:'Andrey Rublev',country:'RUS',serve:86,return:82,ground:92,movement:82,consistency:79,aggression:94,net:62,clay:86,grass:80,hard:88},
+{id:'musetti',name:'Lorenzo Musetti',country:'ITA',serve:77,return:86,ground:88,movement:91,consistency:84,aggression:77,net:87,clay:94,grass:85,hard:82},
+{id:'shelton',name:'Ben Shelton',country:'USA',serve:96,return:76,ground:83,movement:87,consistency:76,aggression:95,net:80,clay:78,grass:89,hard:88},
+{id:'draper',name:'Jack Draper',country:'GBR',serve:90,return:85,ground:89,movement:85,consistency:84,aggression:84,net:79,clay:83,grass:88,hard:91}
+,{id:'paul',name:'Tommy Paul',country:'USA',serve:84,return:88,ground:87,movement:92,consistency:88,aggression:78,net:84,clay:85,grass:87,hard:91}
+,{id:'tiafoe',name:'Frances Tiafoe',country:'USA',serve:86,return:80,ground:84,movement:89,consistency:80,aggression:88,net:83,clay:81,grass:88,hard:88}
+,{id:'humbert',name:'Ugo Humbert',country:'FRA',serve:88,return:81,ground:85,movement:85,consistency:84,aggression:86,net:79,clay:76,grass:92,hard:90}
+,{id:'khachanov',name:'Karen Khachanov',country:'RUS',serve:89,return:81,ground:87,movement:81,consistency:85,aggression:86,net:75,clay:83,grass:85,hard:89}
+,{id:'tsitsipas',name:'Stefanos Tsitsipas',country:'GRE',serve:87,return:79,ground:88,movement:86,consistency:83,aggression:84,net:87,clay:94,grass:83,hard:86}
+,{id:'dimitrov',name:'Grigor Dimitrov',country:'BUL',serve:85,return:86,ground:89,movement:89,consistency:85,aggression:82,net:88,clay:86,grass:90,hard:89}
+,{id:'cerundolo',name:'Francisco Cerundolo',country:'ARG',serve:81,return:83,ground:89,movement:85,consistency:84,aggression:87,net:72,clay:94,grass:76,hard:83}
+,{id:'baez',name:'Sebastian Baez',country:'ARG',serve:73,return:87,ground:86,movement:91,consistency:87,aggression:78,net:69,clay:96,grass:70,hard:81}
+,{id:'norrie',name:'Cameron Norrie',country:'GBR',serve:80,return:87,ground:83,movement:88,consistency:88,aggression:69,net:73,clay:86,grass:85,hard:87}
+,{id:'korda',name:'Sebastian Korda',country:'USA',serve:88,return:84,ground:87,movement:83,consistency:83,aggression:84,net:83,clay:84,grass:89,hard:90}
+,{id:'lehecka',name:'Jiri Lehecka',country:'CZE',serve:90,return:81,ground:87,movement:85,consistency:83,aggression:89,net:76,clay:84,grass:90,hard:89}
+,{id:'fonseca',name:'Joao Fonseca',country:'BRA',serve:87,return:80,ground:89,movement:88,consistency:78,aggression:94,net:76,clay:88,grass:84,hard:87},
+{id:'mensik',name:'Jakub Mensik',country:'CZE',serve:90,return:83,ground:87,movement:85,consistency:83,aggression:88,net:77,clay:84,grass:86,hard:90},
+{id:'machac',name:'Tomas Machac',country:'CZE',serve:83,return:87,ground:87,movement:90,consistency:85,aggression:84,net:81,clay:85,grass:85,hard:89},
+{id:'cobolli',name:'Flavio Cobolli',country:'ITA',serve:83,return:84,ground:86,movement:88,consistency:83,aggression:84,net:79,clay:89,grass:84,hard:85},
+{id:'fils',name:'Arthur Fils',country:'FRA',serve:88,return:82,ground:88,movement:88,consistency:81,aggression:92,net:79,clay:88,grass:86,hard:88},
+{id:'auger',name:'Felix Auger-Aliassime',country:'CAN',serve:91,return:81,ground:86,movement:86,consistency:82,aggression:89,net:81,clay:82,grass:89,hard:90},
+{id:'bublik',name:'Alexander Bublik',country:'KAZ',serve:95,return:74,ground:84,movement:78,consistency:75,aggression:96,net:87,clay:73,grass:94,hard:86},
+{id:'tabilo',name:'Alejandro Tabilo',country:'CHI',serve:84,return:85,ground:84,movement:84,consistency:84,aggression:79,net:77,clay:89,grass:87,hard:86},
+{id:'etcheverry',name:'Tomas Martin Etcheverry',country:'ARG',serve:85,return:82,ground:86,movement:83,consistency:85,aggression:81,net:74,clay:93,grass:75,hard:83},
+{id:'arnaldi',name:'Matteo Arnaldi',country:'ITA',serve:85,return:84,ground:85,movement:87,consistency:84,aggression:83,net:78,clay:87,grass:83,hard:86},
+{id:'nakashima',name:'Brandon Nakashima',country:'USA',serve:87,return:85,ground:85,movement:84,consistency:87,aggression:81,net:78,clay:81,grass:86,hard:89},
+{id:'griekspoor',name:'Tallon Griekspoor',country:'NED',serve:89,return:80,ground:84,movement:82,consistency:82,aggression:87,net:80,clay:81,grass:90,hard:87},
+{id:'berrettini',name:'Matteo Berrettini',country:'ITA',serve:95,return:73,ground:87,movement:78,consistency:80,aggression:94,net:86,clay:78,grass:96,hard:87},
+{id:'popyrin',name:'Alexei Popyrin',country:'AUS',serve:91,return:78,ground:85,movement:84,consistency:81,aggression:90,net:80,clay:82,grass:88,hard:88},
+{id:'sonego',name:'Lorenzo Sonego',country:'ITA',serve:86,return:80,ground:84,movement:84,consistency:82,aggression:86,net:80,clay:86,grass:85,hard:85},
+{id:'shapovalov',name:'Denis Shapovalov',country:'CAN',serve:88,return:79,ground:87,movement:88,consistency:77,aggression:94,net:84,clay:80,grass:89,hard:87},
+{id:'hurkacz',name:'Hubert Hurkacz',country:'POL',serve:95,return:80,ground:85,movement:81,consistency:86,aggression:82,net:87,clay:80,grass:94,hard:91}
+];
+const $=id=>document.getElementById(id), clamp=(x,a,b)=>Math.max(a,Math.min(b,x)), lerp=(a,b,t)=>a+(b-a)*t;
+const els={p1:$('player1'),p2:$('player2'),surface:$('surface'),speed:$('speed'),score:$('score'),status:$('status'),stats:$('stats'),log:$('log'),summary:$('summary'),summaryInner:$('summaryInner'),canvas:$('court'),badge:$('matchBadge'),insights:$('insights'),timeline:$('timeline')};
+for(const p of PLAYERS){for(const el of [els.p1,els.p2]){const o=document.createElement('option');o.value=p.id;o.textContent=p.name;el.appendChild(o)}}els.p2.value='alcaraz';
+function rng(seed){let a=seed>>>0;return ()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t^=t+Math.imul(t^(t>>>7),61|t);return ((t^(t>>>14))>>>0)/4294967296}}
+function newMatch(p1,p2,surface,seed,bestOf=3){return {bestOf:bestOf===5?5:3,players:[p1,p2],surface,seed,random:rng(seed),sets:[[],[]],games:[0,0],points:[0,0],server:0,firstServer:0,tiebreak:false,tiebreakFirst:0,tiebreakStartTotal:0,grandSlam:false,finished:false,winner:null,pointNumber:0,stats:[emptyStats(),emptyStats()],history:[],matchEvents:[],phase:'ready',ball:null,actors:[{x:0,y:1.08,vx:0,vy:0,stance:'ready'},{x:0,y:-1.08,vx:0,vy:0,stance:'ready'}],stamina:[1,1],recovery:null,ballKidCarry:false,rally:null,phaseTime:0,visualClock:0,changeover:null,cheerTime:0,cheerStrength:0,ballKidEvent:null,bounceMarks:[],ballTrail:[],skipUntilGame:false,serveState:null,serveNotice:'',reaction:null}};
+function emptyStats(){return {aces:0,doubleFaults:0,serveFaults:0,firstAttempts:0,firstIn:0,firstWon:0,firstPlayed:0,secondWon:0,secondPlayed:0,servicePointsWon:0,servicePoints:0,returnPointsWon:0,winners:0,forcedErrors:0,unforcedErrors:0,pointsWon:0,breakPoints:0,breakConverted:0,maxRally:0,rallyShots:0,rallies:0}}
+function gamePoint(p){return p===0?'0':p===1?'15':p===2?'30':p===3?'40':'AD'}
+function tieBreakTarget(m){return m.grandSlam&&m.sets[0].length===(m.bestOf===5?4:2)?10:7}
+function pointLabels(m){if(m.tiebreak)return m.points.map(String);const [a,b]=m.points;if(a>=3&&b>=3){if(a===b)return ['40','40'];if(a>b)return ['AD','40'];return ['40','AD']}return m.points.map(gamePoint)}
+function currentServer(m){if(!m.tiebreak)return m.server;const n=m.points[0]+m.points[1];return n===0?m.tiebreakFirst:((Math.floor((n-1)/2)%2===0)?1-m.tiebreakFirst:m.tiebreakFirst)}
+function gameIsBreakPoint(m,receiver){if(m.tiebreak||receiver===currentServer(m))return false;const r=m.points[receiver],s=m.points[1-receiver];return r>=3&&r>=s+1 || r===3&&s<=2}
+function matchScore(m){return m.sets[0].map((n,i)=>n+'-'+m.sets[1][i]).join(', ')||'0-0'}
+function pointOutcome(m,winner,meta={}){if(m.finished)return;const server=currentServer(m),receiver=1-server;const s=m.stats;const bp=gameIsBreakPoint(m,receiver);if(bp)s[receiver].breakPoints++;s[winner].pointsWon++;if(winner===server)s[server].servicePointsWon++;else s[receiver].returnPointsWon++;s[server].servicePoints++;if(meta.firstIn){s[server].firstPlayed++;if(winner===server)s[server].firstWon++}else{s[server].secondPlayed++;if(winner===server)s[server].secondWon++}if(meta.ace)s[server].aces++;if(meta.doubleFault)s[server].doubleFaults++;if(meta.winner)s[winner].winners++;if(meta.forcedError)s[1-winner].forcedErrors++;if(meta.unforcedError)s[1-winner].unforcedErrors++;if(meta.shots){for(const v of s){v.maxRally=Math.max(v.maxRally,meta.shots);v.rallyShots+=meta.shots;v.rallies++}}m.pointNumber++;m.history.push({winner,server,shots:meta.shots||0,kind:meta.kind||'Point',scoreBefore:matchScore(m),firstIn:!!meta.firstIn,ace:!!meta.ace,doubleFault:!!meta.doubleFault});if(m.history.length>4000)m.history.shift();
+ if(m.tiebreak){m.points[winner]++;const target=tieBreakTarget(m);if(m.points[winner]>=target&&m.points[winner]-m.points[1-winner]>=2){const w=winner;m.sets[0].push(m.games[0]+(w===0?1:0));m.sets[1].push(m.games[1]+(w===1?1:0));m.games=[0,0];m.points=[0,0];m.tiebreak=false;m.server=1-m.tiebreakFirst;checkMatch(m,w)}m.history[m.history.length-1].score=matchScore(m);return}
+ m.points[winner]++;if(m.points[winner]>=4&&m.points[winner]-m.points[1-winner]>=2){if(bp&&winner===receiver)s[receiver].breakConverted++;m.games[winner]++;m.points=[0,0];m.server=1-m.server;const [a,b]=m.games;if((Math.max(a,b)>=6&&Math.abs(a-b)>=2)){m.sets[0].push(a);m.sets[1].push(b);m.games=[0,0];checkMatch(m,winner)}else if(a===6&&b===6){m.tiebreak=true;m.tiebreakFirst=m.server;m.points=[0,0]}}
+ m.history[m.history.length-1].score=matchScore(m);
+}
+function checkMatch(m,setWinner){if(m.finished)return;const won=m.sets[setWinner].filter((x,i)=>x>m.sets[1-setWinner][i]).length;if(won>=Math.ceil((m.bestOf||3)/2)){m.finished=true;m.winner=setWinner;m.phase='finished'}}
+function skill(p,surface){return (p.ground*.34+p.return*.17+p.movement*.14+p.consistency*.17+p[surface]*.18)}
+// v0.88: deterministic, surface-aware point model for statistical calibration.
+function matchStyle(p){return p.style||playerStyle(p)}
+function pointCalibration(p,surface){
+ const style=matchStyle(p);
+ const attack=style==='Power server'?1:style==='Aggressive baseliner'?.55:style==='All-court attacker'?.65:style==='Counterpuncher'?-.55:0;
+ const patience=style==='Counterpuncher'?.75:style==='Balanced baseliner'?.25:style==='Power server'?-.4:0;
+ return {attack,patience,serveIn:clamp(.625+(p.consistency-85)*.0022-(p.serve-85)*.0008-attack*.012,.52,.74),
+ secondIn:clamp(.947+(p.consistency-85)*.0015,.90,.985),
+ ace:clamp(.075+(p.serve-85)*.0025+attack*.015+(surface==='grass'?.014:surface==='clay'?-.018:0),.012,.19),
+ rallyMean:(surface==='clay'?5.8:surface==='grass'?3.6:4.65)*(1+patience*.20),
+ error:clamp(.32-(p.consistency-85)*.003+attack*.045-patience*.045,.17,.48)};
+}
+function choosePoint(m){
+ const r=m.random,p=m.players,server=currentServer(m),receiver=1-server,sv=p[server],rv=p[receiver],surface=m.surface;
+ const sc=pointCalibration(sv,surface),rc=pointCalibration(rv,surface);
+ const firstIn=r()<sc.serveIn;
+ const doubleFault=!firstIn&&r()>sc.secondIn;
+ m.stats[server].firstAttempts++;if(firstIn)m.stats[server].firstIn++;
+ const edge=(skill(sv,surface)-skill(rv,surface))*.005;
+ const serveWin=clamp((firstIn?.705:.515)+(sv.serve-85)*.0025-(rv.return-85)*.0027+edge+(surface==='grass'?.024:surface==='clay'?-.025:0)+sc.attack*.012-rc.patience*.010,.34,.86);
+ const ace=firstIn&&r()<clamp(sc.ace-(rv.return-85)*.0012,.008,.21);
+ let winner,kind,shots,unforcedError=false,forcedError=false,cleanWinner=false;
+ if(doubleFault){winner=receiver;kind='Double fault';shots=0}
+ else if(ace){winner=server;kind='Ace';shots=1}
+ else{
+  winner=r()<serveWin?server:receiver;
+  const rallyMean=(sc.rallyMean+rc.rallyMean)/2;
+  shots=clamp(Math.floor(-Math.log(Math.max(.000001,1-r()))*rallyMean)+2,2,36);
+  const finisher=pointCalibration(p[winner],surface),loser=pointCalibration(p[1-winner],surface);
+  const u=r(),unforced=clamp(loser.error+(shots>10?.07:0),.15,.55);
+  if(u<unforced){kind='Unforced error';unforcedError=true}
+  else if(u<unforced+.36){kind='Forced error';forcedError=true}
+  else{kind='Winner';cleanWinner=true}
+ }
+ return {winner,server,firstIn,doubleFault,ace,kind,shots,unforcedError,forcedError,cleanWinner,firstAttempt:true};
+}
+// Court coordinates: x = singles half-widths, y = baseline half-lengths, z = metres.
+// A full doubles court is drawn, but singles lines determine valid shots.
+const COURT={singles:1,doubles:10.97/8.23,service:6.40/11.885,baseline:11.885};
+const SURFACE_PHYSICS={hard:{restitution:.72,friction:.76,spinGrip:.65},clay:{restitution:.78,friction:.62,spinGrip:1.0},grass:{restitution:.64,friction:.85,spinGrip:.38}};
+// v0.75 balance controls: reduce excessive free points on serve without erasing player differences.
+const BALANCE={firstServePaceMultiplier:1.10,secondServePaceMultiplier:1.06,returnReachBonus:.055,serveReturnWindow:.10,groundstrokeReachBonus:.025,baseShotError:.058,driveErrorPenalty:.020,dropErrorPenalty:.018,shotQualityWeight:.0038,serveSkillReachFactor:.0028,returnSkillReachFactor:.0020,grassServeBoost:.022,clayServePenalty:.012};
+const FAST_TRAIL_THRESHOLD=2.15; // court lengths per second (display threshold)
+function spinLabel(seg){if(!seg)return 'NO SHOT';if(seg.type==='serve')return seg.spin>.25?'KICK SERVE':'FLAT / SLICE SERVE';if(seg.spin>=.18)return 'TOPSPIN';if(seg.spin<=-.18)return 'BACKSPIN / SLICE';return 'FLAT';}
+function shotSpeed(seg){return seg?.flight?Math.hypot(seg.flight.vx,seg.flight.vy):0;}
+function reboundPhysics(seg,surface){const coeff=SURFACE_PHYSICS[surface],spin=clamp(seg.spin||0,-1,1);return {friction:clamp(coeff.friction*(1+.15*spin*coeff.spinGrip),.45,.95),restitution:clamp(coeff.restitution*(1+.17*spin*coeff.spinGrip),.48,.93)};}
+function racketHand(actor,ballX){return ballX<actor.x?'backhand':'forehand';}
+function shotFlight(seg,surface){
+ // Physically integrated vertical flight with gravity and a small spin-dependent lift.
+ // Choose velocity to arrive at the specified landing location after duration seconds.
+ const g=9.81,spin=seg.spin,effG=g*(1+spin*.09),T=seg.duration;
+ const z0=seg.z0||.88,zLand=0;
+ const vz=(zLand-z0+.5*effG*T*T)/T;
+ return {x:seg.x0,y:seg.y0,z:z0,vx:(seg.x1-seg.x0)/T,vy:(seg.y1-seg.y0)/T,vz,gravity:effG};
+}
+function sampleFlight(seg,t,surface){
+ const f=seg.flight;const tt=clamp(t,0,seg.duration);
+ const z=Math.max(0,f.z+f.vz*tt-.5*f.gravity*tt*tt);
+ return {x:f.x+f.vx*tt,y:f.y+f.vy*tt,z,spin:seg.spin};
+}
+function makeBounce(seg,surface){
+ const f=seg.flight,impact=f.vz-f.gravity*seg.duration,coeff=SURFACE_PHYSICS[surface];
+ const bounce=reboundPhysics(seg,surface);const up=-impact*bounce.restitution;
+ const lifetime=Math.min(.34,2*up/9.81);
+ return {x:seg.x1,y:seg.y1,z:0,up,life:lifetime,friction:bounce.friction};
+}
+// Tactical planning: shot choice is influenced by player identity, opponent position,
+// surface, rally phase and previous ball placement. Randomness is seeded per match.
+// v0.94: tactical decisions account for court geometry and recovery time.
+function tacticalContext(me,op,previous,player){
+ const incoming=previous?{x:previous.x1,y:previous.y1}:{x:me.x,y:me.y};
+ const displacement=Math.hypot(me.x-incoming.x,me.y-incoming.y);
+ const recovery=clamp(displacement*.45+Math.abs(me.x)*.20,0,1);
+ const openSide=op.x>=0?-1:1;
+ const exposure=clamp(Math.abs(op.x)*.72+(Math.abs(op.y)<.78?.18:0),0,1);
+ const depth=Math.abs(op.y);
+ const stamina=clamp(player._stamina??1,.56,1);
+ return {recovery,openSide,exposure,depth,stamina,defensive:recovery>.45||stamina<.69};
+}
+function tacticalRecoveryTarget(actor,player,opponent){
+ const stamina=clamp(player._stamina??1,.56,1);
+ const center=clamp(opponent.x*.16,-.20,.20);
+ const netPreference=matchStyle(player)==='All-court attacker'&&Math.abs(actor.y)<.82?.82:1.04;
+ return {x:clamp(center+(actor.x-center)*(1-stamina)*.30,-.42,.42),y:(actor.y>=0?1:-1)*netPreference};
+}
+function tacticalShot(m,from,to,previous,i,total){
+ const r=m.random,p=m.players[from],op=m.actors[to],me=m.actors[from];
+ const lastX=previous?.x1??0;
+ const context=tacticalContext(me,op,previous,p);
+ const style=matchStyle(p);const styleAttack=style==='Power server'?.12:style==='Aggressive baseliner'?.18:style==='All-court attacker'?.16:style==='Counterpuncher'?-.15:0;
+ const aggressive=clamp((p.aggression-70)/30+styleAttack,0,1);
+ const underPressure=clamp((Math.abs(me.x)>.72?.28:0)+(Math.abs(me.y)>1.10?.18:0)+(previous?.type==='drive'?.18:0)+context.recovery*.22+(1-context.stamina)*.35,0,.85);
+ const opponentDeep=Math.abs(op.y)>1.01,opponentNearNet=Math.abs(op.y)<.72;
+ const openSide=op.x>0?-1:1;
+ const availableSpace=context.exposure;
+ const isReturn=i===1;
+ const variety=p.id==='alcaraz'||p.id==='musetti'?.035:.012;
+ const decision=r();let type='topspin';
+ if(isReturn)type='return';
+ else if(opponentNearNet&&decision<.20+underPressure*.25)type='lob';
+ else if(opponentDeep&&underPressure<.30&&decision<.025+variety+(p.net-80)*.001)type='drop';
+ else if(Math.abs(me.y)<.73&&decision<.65)type='volley';
+ else if(underPressure>.26&&decision<.58)type='slice';
+ else if(decision<.12+underPressure*.30+(style==='Counterpuncher'?.12:0))type='slice';
+ else if(decision<.22+aggressive*.25*(1-underPressure)*context.stamina)type='drive';
+ // Crosscourt is the default safe pattern; attacking an open court is situational.
+ const crosscourt=lastX===0?(r()<.5?-1:1):(lastX>0?-1:1);
+ const attackOpen=availableSpace>.34&&underPressure<.4&&context.stamina>.68&&r()<.25+aggressive*.35;
+ const direction=attackOpen?openSide:(r()<.72?crosscourt:-crosscourt);
+ const width=(type==='return'?.18:.26)+r()*.56;
+ let x1=clamp(direction*width,-.94,.94);
+ let depth=.69+r()*.27,duration=.77+(r()-.5)*.17,spin=.28+(r()-.5)*.42;
+ if(type==='return'){depth=.75+r()*.21;duration=.74+r()*.16;}
+ if(type==='drop'){depth=.12+r()*.18;duration=.66+r()*.13;spin=-.48;x1=clamp(openSide*(.2+r()*.55),-.94,.94);}
+ if(type==='lob'){depth=.80+r()*.16;duration=1.14+r()*.29;spin=.37;}
+ if(type==='volley'){depth=.36+r()*.48;duration=.43+r()*.17;spin=-.25;}
+ if(type==='slice'){duration=.87+r()*.16;spin=-.68;}
+ if(type==='drive'){duration=.59+r()*.14;spin=-.11;depth=.80+r()*.16;}
+ if(underPressure>.3&&type==='topspin'){duration*=1.11;depth=.77+r()*.17;}
+ if(context.defensive&&type==='slice'){duration*=1.07;depth=.79+r()*.16;}
+ if(context.stamina<.72&&type==='drive'){duration*=1.09;}
+ const y1=(to===0?1:-1)*depth;
+ return {from,to,x0:me.x,y0:me.y,x1,y1,duration,spin,z0:.95,type,
+   tactic:attackOpen?'open-court attack':underPressure>.3?'defensive reset':type==='return'?'deep return':type==='drop'?'drop shot':type==='lob'?'defensive lob':'crosscourt rally'};
+}
+// v0.41: shots are generated only when the receiver physically reaches the ball.
+// Bounce coordinates and racket-contact coordinates are deliberately different.
+// Serve geometry uses the deuce/ad side of the current point, including tiebreaks.
+function serveProfile(p){
+ const power=clamp((p.serve-75)/23,0,1);
+ return {power,firstIn:clamp(.61+(p.consistency-85)*.003-(p.serve-85)*.0015,.48,.76),
+   secondIn:clamp(.94+(p.consistency-85)*.0015,.88,.985),
+   pace:clamp(.57-power*.16,.39,.62),toss:clamp(.69+(p.serve-85)*.004,.60,.83)};
+}
+function serveSide(m){return m.tiebreak?(m.points[0]+m.points[1])%2:(m.points[0]+m.points[1])%2;}
+function serveTarget(m,server,attempt){
+ const r=m.random,side=serveSide(m)===0?1:-1; // receiver-side sign in overhead coordinates
+ const receiver=1-server,profile=serveProfile(m.players[server]);
+ const style=r(),placement=style<.36?'wide':style<.70?'body':'T';
+ const boxSide=server===0?-side:side; // opposite screen half from server, matching receiver
+ const wide=placement==='wide'?.70:placement==='T'?.18:.42;
+ const x=boxSide*(wide+(r()-.5)*.17);
+ const depth=.20+r()*.31;
+ const pace=profile.pace*(attempt===1?BALANCE.firstServePaceMultiplier:1.32*BALANCE.secondServePaceMultiplier);
+ const spin=attempt===1?-.2:.54;
+ // Misses have physical landing positions outside the appropriate service box.
+ const probability=attempt===1?profile.firstIn:profile.secondIn;
+ const valid=r()<probability;
+ let x1=x,y1=(receiver===0?1:-1)*depth;
+ if(!valid){const miss=r();if(miss<.36)x1=boxSide*(1.04+r()*.18);
+ else if(miss<.72)y1=(receiver===0?1:-1)*(.57+r()*.18);
+ else x1=-boxSide*(.09+r()*.28);}
+ return {from:server,to:receiver,x0:m.actors[server].x,y0:m.actors[server].y,
+   x1,y1,duration:pace*(.93+r()*.14),spin,z0:2.25+profile.power*.38,
+   type:'serve',placement,attempt,valid};
+}
+function validServiceLanding(seg,m){
+ const boxSide=((seg.from??(1-seg.to))===0?-1:1)*(serveSide(m)===0?1:-1);
+ const receiver=seg.to,sign=receiver===0?1:-1;
+ return seg.x1*boxSide>=0&&Math.abs(seg.x1)<=1.01&&seg.y1*sign>=0&&seg.y1*sign<=COURT.service+.008;
+}
+function beginServeAttempt(m,attempt){
+ const q=m.rally,server=q.server,receiver=1-server;
+ const seg=serveTarget(m,server,attempt);
+ q.attempt=attempt;q.segments.push(seg);q.index=q.segments.length-1;q.t=0;
+ q.phase='toss';q.tossElapsed=0;q.bounce=null;q.bounceElapsed=0;
+ q.serveSegment=seg;
+ m.actors[server].stance='toss';m.ball={x:seg.x0,y:seg.y0,z:1.2};
+ m.serveNotice=(attempt===1?'FIRST SERVE':'SECOND SERVE')+' · '+seg.placement.toUpperCase();
+}
+function prepareRally(m){
+ const server=currentServer(m),receiver=1-server,r=m.random;
+ const side=serveSide(m)===0?1:-1;
+ // Positions are reached by walking during recovery, never teleported here.
+ m.actors[server].stance='toss';m.actors[receiver].stance='ready';
+ m.actors[receiver].anticipation=returnReadiness(m).anticipation;
+ m.recovery=null;m.ballKidEvent=null;m.ballKidCarry=false;m.ballTrail=[];
+ m.rally={segments:[],index:0,t:0,bounce:null,shots:0,firstIn:false,server,phase:'toss',bounceElapsed:0,contactCount:0,attempt:1};
+ m.phase='rally';m.phaseTime=0;beginServeAttempt(m,1);
+}
+function serveFault(m){
+ const q=m.rally,server=q.server;
+ m.stats[server].serveFaults++;
+ if(q.attempt===1){m.serveNotice='FAULT · SECOND SERVE';if(!m._fastForward)umpireCall('Fault');beginServeAttempt(m,2);return;}
+ m.serveNotice='DOUBLE FAULT';finishReactivePoint(m,1-server,'Double fault',{doubleFault:true});
+}
+// v0.97: optional synthesized audio; no external sound files or network calls.
+// Audio begins only after the user enables it, respecting browser autoplay restrictions.
+const stadiumAudio={ctx:null,master:null,lastPoint:-1,lastAmbient:0,noiseBuffer:null};
+function audioActive(){return typeof document!=='undefined'&&!!document.getElementById('audioEnabled')?.checked}
+function audioSetup(){if(!audioActive())return null;try{if(!stadiumAudio.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;stadiumAudio.ctx=new AC();stadiumAudio.master=stadiumAudio.ctx.createGain();stadiumAudio.master.connect(stadiumAudio.ctx.destination)}stadiumAudio.master.gain.value=(Number(document.getElementById('audioVolume')?.value)||0)/100*.34;if(stadiumAudio.ctx.state==='suspended')stadiumAudio.ctx.resume().catch(()=>{});return stadiumAudio.ctx}catch(e){return null}}
+function stadiumTone(frequency,duration=0.08,type='triangle',level=.13){const ctx=audioSetup();if(!ctx)return;const osc=ctx.createOscillator(),gain=ctx.createGain(),t=ctx.currentTime;osc.type=type;osc.frequency.setValueAtTime(frequency,t);osc.frequency.exponentialRampToValueAtTime(Math.max(30,frequency*.76),t+duration);gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(Math.max(.0002,level),t+.008);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(gain);gain.connect(stadiumAudio.master);osc.start(t);osc.stop(t+duration+.01)}
+function stadiumNoise(duration=.4,level=.08){const ctx=audioSetup();if(!ctx)return;const length=Math.max(1,Math.round(ctx.sampleRate*duration)),buffer=ctx.createBuffer(1,length,ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*(.55+.45*Math.sin(i/79));const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain(),t=ctx.currentTime;src.buffer=buffer;filter.type='lowpass';filter.frequency.value=900;gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(level,t+.07);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);src.connect(filter);filter.connect(gain);gain.connect(stadiumAudio.master);src.start(t);src.stop(t+duration)}
+function umpireScoreText(m){if(m.finished)return 'Game, set and match, '+m.players[m.winner].name;if(m.tiebreak){const server=currentServer(m);return m.points[server]+' '+m.points[1-server];}const pts=pointLabels(m);if(pts[0]==='40'&&pts[1]==='40')return 'Deuce';if(pts[0]==='AD')return 'Advantage '+m.players[0].name;if(pts[1]==='AD')return 'Advantage '+m.players[1].name;if(pts[0]===pts[1])return pts[0]==='0'?'Love all':pts[0]+' all';const server=currentServer(m);return (pts[server]==='0'?'Love':pts[server])+' '+(pts[1-server]==='0'?'Love':pts[1-server])}
+function umpireCall(words){if(!audioActive()||!document.getElementById('umpireVoice')?.checked||!('speechSynthesis' in window))return;try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(words);u.lang='en-GB';u.rate=.89;u.pitch=.86;u.volume=Math.min(.58,Number(document.getElementById('audioVolume')?.value||0)/100*.48);window.speechSynthesis.speak(u)}catch(e){}}
+function audioPoint(m,kind,shots,gameEnded){if(!audioActive()||m.skipUntilGame||m._fastForward)return;stadiumNoise(shots>=9||gameEnded||m.finished?1.7:.45,shots>=9||gameEnded||m.finished?.17:.055);if(shots>=9||gameEnded||m.finished)stadiumTone(490,.18,'sine',.08);if(kind==='Double fault')umpireCall('Double fault. '+umpireScoreText(m));else if(m.finished||gameEnded)umpireCall(umpireScoreText(m));else umpireCall(umpireScoreText(m))}
+function audioRacket(m,server=false){if(!audioActive()||m._fastForward)return;stadiumTone(server?190:235,server?.11:.085,'triangle',server?.31:.23);if(!server&&m.random()<.32)stadiumTone(115,.085,'sawtooth',.055)}
+function audioAmbient(now){if(!audioActive()||document.hidden||!match||paused||match.finished||match.phase!=='between'||now-stadiumAudio.lastAmbient<3500)return;stadiumAudio.lastAmbient=now;stadiumNoise(.65,.022)}
+function finishReactivePoint(m,winner,kind,flags={}){
+ const q=m.rally,oldGames=m.games[0]+m.games[1],oldSets=m.sets[0].length,wasTiebreak=m.tiebreak,oldTiebreakPoints=m.points[0]+m.points[1];
+ pointOutcome(m,winner,{firstIn:q.firstIn,shots:q.shots,kind,ace:kind==='Ace',winner:kind==='Winner',forcedError:kind==='Forced error',unforcedError:kind==='Unforced error',...flags});
+ const gameEnded=oldGames!==m.games[0]+m.games[1]||oldSets!==m.sets[0].length;
+ m.stamina=m.stamina.map((v,i)=>clamp(v-.0018*q.shots-(i===winner?.002:.004),.56,1));
+ const totalGames=m.sets[0].reduce((sum,v,i)=>sum+v+m.sets[1][i],0)+m.games[0]+m.games[1];
+ // Players change ends after odd-numbered games, after a set (unless the
+ // total games in that set was even), and every six points in a tiebreak.
+ // The overhead court keeps each player in their original screen half; this
+ // models the changeover pause, not a literal camera-side swap.
+ const tiebreakChange=wasTiebreak&&m.tiebreak&&!m.finished&&(oldTiebreakPoints+1)%6===0;
+ m.changeover=!m.finished&&((gameEnded&&totalGames%2===1)||tiebreakChange)?{duration:tiebreakChange?2.7:5.2,elapsed:0}:null;
+ m.cheerTime=0;m.cheerStrength=clamp(.35+q.shots/22+(gameEnded?.28:0),.3,1);
+ m.reaction={winner,elapsed:0,duration:gameEnded?1.7:1.05,importance:gameEnded?'game':m.tiebreak?'tiebreak':q.shots>=9?'long rally':'point'};
+ m.phase=m.finished?'finished':'between';m.phaseTime=0;m.ballTrail=[];
+ m.recovery=m.finished?null:{duration:m.changeover?5.2:3.1,elapsed:0,server:currentServer(m),collected:false};
+ const b=q.bounce;if(b){m.ballKidEvent={elapsed:0,duration:m.changeover?3.5:2.2,side:m.pointNumber%2,x:b.x,y:b.y};m.lastBounce=b;}else{m.ball=null;m.lastBounce=null;}
+ audioPoint(m,kind,q.shots,gameEnded);const call=broadcastPointLine(m,winner,kind,q.shots,gameEnded);addLog(call);updateBroadcast(call);renderInfo();if(m.finished)showSummary();
+}
+function moveActor(a,tx,ty,dt,player,intercept){
+ const dx=tx-a.x,dy=ty-a.y,dist=Math.hypot(dx,dy);
+ const speed=player.movement||85;
+ const fatigue=player._stamina??1;
+ const maxSpeed=(.92+(speed-80)*.009)*(intercept?1.22:.86)*(.73+.27*fatigue);
+ const acceleration=(5.25+(speed-80)*.025)*(.78+.22*fatigue);
+ const desired=dist<.045?0:Math.min(maxSpeed,Math.sqrt(2*acceleration*dist));
+ const tvx=dist>1e-6?dx/dist*desired:0,tvy=dist>1e-6?dy/dist*desired:0;
+ const dvx=tvx-(a.vx||0),dvy=tvy-(a.vy||0),delta=Math.hypot(dvx,dvy);
+ const maxDelta=acceleration*dt;
+ const k=delta>maxDelta?maxDelta/delta:1;
+ a.vx=(a.vx||0)+dvx*k;a.vy=(a.vy||0)+dvy*k;
+ a.x=clamp(a.x+a.vx*dt,-1.28,1.28);
+ a.y=clamp(a.y+a.vy*dt,a.y>=0?.08:-1.20,a.y>=0?1.20:-.08);
+ a.stance=dist<.055?'ready':desired>.7?'run':'adjust';
+}
+// v0.42: racket contact is a separate airborne event, not the bounce event.
+// Receivers may volley before the bounce; groundstrokes are struck after the
+// rebound has travelled for at least 0.12 s and risen above the court.
+function advanceRally(m,dt){
+ if(m.phase!=='rally'||!m.rally)return;
+ const q=m.rally,seg=q.segments[q.index],receiver=seg.to,hitter=seg.from;
+ if(q.phase==='toss'){
+  q.tossElapsed+=dt;const u=clamp(q.tossElapsed/serveProfile(m.players[hitter]).toss,0,1);
+  m.ball={x:seg.x0+.035*Math.sin(u*Math.PI),y:seg.y0,z:1.18+1.45*(1-(2*u-1)**2)};
+  m.actors[hitter].stance=u>.7?'serve':'toss';
+  if(u>=1){
+   if(q.attempt===1)m.stats[hitter].firstAttempts++;audioRacket(m,true);
+   seg.flight=shotFlight(seg,m.surface);q.phase='flight';q.t=0;q.shots=1;
+   m.ball=sampleFlight(seg,0,m.surface);
+  }
+  return;
+ }
+ const actor=m.actors[receiver],opponent=m.actors[hitter];
+ const direction=receiver===0?1:-1;
+ const friction=q.phase==='afterBounce'&&q.bounce?q.bounce.friction:reboundPhysics(seg,m.surface).friction;
+ const bounceTime=.19;
+ const predictedX=clamp(seg.x1+seg.flight.vx*friction*bounceTime,-1.25,1.25);
+ const predictedY=clamp(seg.y1+seg.flight.vy*friction*bounceTime,receiver===0?.09:-1.2,receiver===0?1.2:-.09);
+ const recoveryPlayer={...m.players[hitter],_stamina:m.stamina[hitter]};
+ const recoveryTarget=tacticalRecoveryTarget(opponent,recoveryPlayer,actor);
+ moveActor(opponent,recoveryTarget.x,recoveryTarget.y,dt,recoveryPlayer,false);
+ let x,y,z,elapsed=0;
+ if(q.phase==='flight'){
+  q.t=Math.min(seg.duration,q.t+dt);
+  const pos=sampleFlight(seg,q.t,m.surface);({x,y,z}=pos);
+  // Move towards the *future rebound*, not the ground-contact position.
+  const racketSide=predictedX>=actor.x?-1:1;
+  actor.strokeSide=racketHand(actor,predictedX);actor.anticipation=clamp(1-q.t/seg.duration,0,1);
+  moveActor(actor,clamp(predictedX+racketSide*.09,-1.25,1.25),predictedY,dt,{...m.players[receiver],_stamina:m.stamina[receiver]},true);
+  if(q.t>=seg.duration){
+   if(seg.type==='serve'){
+    if(!validServiceLanding(seg,m)){serveFault(m);return;}
+    // Simplified net-cord let: a valid serve touches the net and is replayed.
+    // A let does not count as a fault or consume the current service attempt.
+    if(m.random()<.014){m.serveNotice='LET · REPLAY SERVE';if(q.attempt===1)m.stats[hitter].firstAttempts=Math.max(0,m.stats[hitter].firstAttempts-1);if(!m._fastForward)umpireCall('Let. '+(q.attempt===1?'First':'Second')+' serve');beginServeAttempt(m,q.attempt);m.serveNotice='LET · REPLAY SERVE';return;}
+    if(q.attempt===1){q.firstIn=true;m.stats[hitter].firstIn++;}
+    m.serveNotice=(q.attempt===1?'FIRST':'SECOND')+' SERVE IN · '+seg.placement.toUpperCase();
+   }
+   q.bounce=makeBounce(seg,m.surface);
+   m.bounceMarks.push({x:seg.x1,y:seg.y1,age:0,duration:.58});
+   q.phase='afterBounce';q.bounceElapsed=0;
+  }
+ }else{
+  q.bounceElapsed+=dt;elapsed=q.bounceElapsed;
+  const b=q.bounce;
+  x=b.x+seg.flight.vx*friction*elapsed;
+  y=b.y+seg.flight.vy*friction*elapsed;
+  z=Math.max(0,b.up*elapsed-4.905*elapsed*elapsed);
+  const ahead=.075;
+  const side=x>=actor.x?-1:1;
+  actor.strokeSide=racketHand(actor,x);actor.anticipation=clamp(1-elapsed/.48,0,1);
+  moveActor(actor,clamp(x+seg.flight.vx*friction*ahead+side*.09,-1.25,1.25),
+   clamp(y+seg.flight.vy*friction*ahead,receiver===0?.08:-1.22,receiver===0?1.22:-.08),dt,{...m.players[receiver],_stamina:m.stamina[receiver]},true);
+ }
+ m.ball={x,y,z};m.ballTrail??=[];if(q.phase==='flight'&&shotSpeed(seg)>=FAST_TRAIL_THRESHOLD){m.ballTrail.push({x,y,z,age:0});if(m.ballTrail.length>14)m.ballTrail.shift();}else if(q.phase==='afterBounce'&&Math.hypot(seg.flight.vx,seg.flight.vy)*friction>=FAST_TRAIL_THRESHOLD){m.ballTrail.push({x,y,z,age:0});if(m.ballTrail.length>14)m.ballTrail.shift();}
+ const distance=Math.hypot(x-actor.x,y-actor.y);
+ // Racket reach is slightly outside the body; no contact while ball is on the floor.
+ const airborne=z>=.27&&z<=1.65;
+ const isVolley=q.phase==='flight'&&seg.type!=='serve'&&Math.abs(actor.y)<.82;
+ const groundstroke=q.phase==='afterBounce'&&elapsed>=.12;
+ const serveReach=seg.type==='serve'?(BALANCE.returnReachBonus+(m.players[receiver].return-85)*BALANCE.returnSkillReachFactor-(m.players[hitter].serve-85)*BALANCE.serveSkillReachFactor+(m.surface==='grass'?-BALANCE.grassServeBoost:m.surface==='clay'?BALANCE.clayServePenalty:0)):BALANCE.groundstrokeReachBonus;
+ const reach=.265+serveReach;
+ const reachable=airborne&&(isVolley||groundstroke)&&distance>=.025&&distance<=reach&&y*direction>.05;
+ if(reachable){
+  audioRacket(m);actor.stance='hit';actor.strokeSide=racketHand(actor,x);actor.strokeTimer=.30;actor.anticipation=0;q.contactCount++;
+  (q.contacts??=[]).push({x,y,z,bounceX:seg.x1,bounceY:seg.y1,afterBounce:groundstroke,elapsed});
+  if(q.shots>=32){finishReactivePoint(m,receiver,'Winner');return;}
+  const next=tacticalShot(m,receiver,hitter,seg,q.shots,0);
+  next.x0=x;next.y0=y;next.z0=z;
+  const p=m.players[receiver],quality=clamp((p.consistency-72)*BALANCE.shotQualityWeight+(p.ground-75)*.0015-(elapsed>.32?.07:0),-.10,.11);
+  const stretch=Math.max(0,Math.abs(x-actor.x)-.11);
+  const returnPressure=seg.type==='serve'?(seg.attempt===1?.018:.003):0;
+  const style=matchStyle(p),styleRisk=style==='Aggressive baseliner'?.018:style==='Power server'?.012:style==='Counterpuncher'?-.012:0;
+  const errorChance=clamp(BALANCE.baseShotError-quality+stretch*.22+returnPressure+styleRisk+(m.surface==='clay'?-.008:m.surface==='grass'?.006:0)+(next.type==='drive'?BALANCE.driveErrorPenalty:0)+(next.type==='drop'?BALANCE.dropErrorPenalty:0),.015,.24);
+  if(m.random()<errorChance){finishReactivePoint(m,hitter,'Unforced error');return;}
+  next.flight=shotFlight(next,m.surface);
+  q.segments.push(next);q.index++;q.shots++;q.t=0;q.phase='flight';q.bounce=null;q.bounceElapsed=0;
+  return;
+ }
+ if(q.phase==='afterBounce'){
+  const b=q.bounce;
+  if(elapsed>=Math.min(seg.type==='serve'?.83:.7,2*b.up/9.81+(seg.type==='serve'?BALANCE.serveReturnWindow:.025))||Math.abs(y)>1.35||Math.abs(x)>1.45){
+   finishReactivePoint(m,hitter,q.shots===1&&seg.type==='serve'?'Ace':q.shots>4?'Winner':'Forced error');
+  }
+ }
+}
+function broadcastPointLine(m,winner,kind,shots,gameEnded){
+ const name=m.players[winner].name.split(' ').slice(-1)[0];
+ const n=Math.max(0,Number(shots)||0);
+ if(m.finished)return name+' takes the match · '+matchScore(m);
+ if(gameEnded)return name+' closes out the game';
+ if(kind==='Ace')return 'Ace! '+name+' finds the line';
+ if(kind==='Double fault')return 'Double fault · point to '+name;
+ if(kind==='Winner')return (n>=8?'Brilliant rally! ':'Clean winner · ')+name;
+ if(kind==='Unforced error')return 'Unforced error · '+name+' takes the point';
+ if(n>=10)return 'Extended exchange · '+name+' comes through after '+n+' shots';
+ if(n>=5)return name+' wins a '+n+'-shot rally';
+ return name+' wins the point';
+}
+function updateBroadcast(message){
+ const lower=$('broadcastLower'),bug=$('broadcastBug');
+ if(lower)lower.textContent=message;
+ if(bug){const mode=activeSeasonFixture?'TOUR':activeFixture?'TOURNAMENT':tourEls?.mode?.value==='season'?'TOUR':'EXHIBITION';bug.textContent=(match?.finished?'FINAL':paused?'PAUSED':'LIVE')+' · '+mode;}
+}
+function addLog(s){const div=document.createElement('div');div.textContent=s;els.log.prepend(div);while(els.log.children.length>70&&els.log.lastChild)els.log.lastChild.remove()}
+// Overhead geometry: deuce and ad service courts are diagonally opposite.
+// Keep the receiver on the established correct screen side; move the server
+// to the other screen half. Both players alternate sides each point.
+function servicePositions(m){
+ const server=currentServer(m),receiver=1-server,side=serveSide(m)===0?1:-1;
+ const receiverX=(server===0?-1:1)*side*.47;
+ return {server,receiver,serverX:-receiverX,receiverX};
+}
+function recoveryTargets(m){
+ const {server,receiver,serverX,receiverX}=servicePositions(m);
+ const target=[null,null];
+ target[server]={x:serverX,y:server===0?1.095:-1.095};
+ target[receiver]={x:receiverX,y:receiver===0?1.045:-1.045};
+ return target;
+}
+// Returners adapt depth to opponent serve power and their own return skill.
+function returnReadiness(m){
+ const server=currentServer(m),receiver=1-server;
+ const profile=serveProfile(m.players[server]);
+ const returnSkill=m.players[receiver].return;
+ const baseline=1.025+profile.power*.060-(returnSkill-80)*.0018;
+ const target=recoveryTargets(m)[receiver];
+ return {x:target.x,y:(receiver===0?1:-1)*clamp(baseline,1.015,1.15),anticipation:clamp(.34+(returnSkill-80)*.009-profile.power*.09,.20,.57)};
+}
+function step(m,dt){
+ if(m.finished||m.phase==='ready')return;
+ m.visualClock+=dt;m.cheerTime+=dt;if(m.reaction){m.reaction.elapsed+=dt;if(m.reaction.elapsed>=m.reaction.duration)m.reaction=null;}for(const a of m.actors){a.strokeTimer=Math.max(0,(a.strokeTimer||0)-dt);if(m.phase!=='rally')a.anticipation=0;}for(const t of m.ballTrail)t.age+=dt;m.ballTrail=m.ballTrail.filter(t=>t.age<.19);
+ for(const b of m.bounceMarks)b.age+=dt;
+ m.bounceMarks=m.bounceMarks.filter(b=>b.age<b.duration);
+ if(m.ballKidEvent){m.ballKidEvent.elapsed+=dt;if(m.ballKidEvent.elapsed>=m.ballKidEvent.duration){m.ballKidEvent=null;m.ballKidCarry=false}}
+ if(m.phase==='between'){
+  m.phaseTime+=dt;
+  if(!m.recovery)m.recovery={duration:3.1,elapsed:0,server:currentServer(m),collected:false};
+  const recovery=m.recovery;recovery.elapsed+=dt;
+  if(m.changeover){m.changeover.elapsed+=dt;if(m.changeover.elapsed>=m.changeover.duration)m.changeover=null}
+  const targets=recoveryTargets(m);
+  targets[1-currentServer(m)]=returnReadiness(m);
+  for(let i=0;i<2;i++){
+   const a=m.actors[i],t=targets[i],resting=!!m.changeover;
+   const target=resting?{x:i===0?.94:1.02,y:i===0?.52:-.52}:t;
+   moveActor(a,target.x,target.y,dt,{...m.players[i],_stamina:m.stamina[i]},false);
+   a.stance=Math.hypot(a.x-target.x,a.y-target.y)<.09?'ready':'walk';
+   m.stamina[i]=clamp(m.stamina[i]+dt*(resting?.023:.004),.56,1);
+  }
+  // A ball kid actually reaches the previous bounce and collects the ball.
+  if(m.ballKidEvent){
+   const e=m.ballKidEvent;
+   if(e.elapsed>=e.duration*.52){recovery.collected=true;m.ballKidCarry=true;m.ball=null;m.lastBounce=null}
+  }else{recovery.collected=true;m.ball=null;m.lastBounce=null}
+  if(m.lastBounce&&!recovery.collected){m.ball={x:m.lastBounce.x,y:m.lastBounce.y,z:0}}
+  const positioned=targets.every((t,i)=>Math.hypot(m.actors[i].x-t.x,m.actors[i].y-t.y)<.075 && Math.hypot(m.actors[i].vx||0,m.actors[i].vy||0)<.19);
+  if(!m.changeover&&recovery.collected&&positioned&&m.phaseTime>=recovery.duration)prepareRally(m);
+ }else if(m.phase==='rally')advanceRally(m,dt);
+}
+
+// Fast-forward shares the movement, serve, bounce and contact engine with live play.
+// Between-point recovery uses 30Hz; rally physics stays at 45Hz.
+// Visual drawing is skipped during fast-forward; match state remains complete.
+function fastForward(m,untilGame=false,maxSteps=2400000){
+ const initial=m.games.join(':')+':'+m.sets[0].length;
+ if(m.phase==='ready'){m.phase='between';m.recovery={duration:3.1,elapsed:0,collected:true};}
+ let steps=0,stalled=0,lastPoint=m.pointNumber;
+ m._fastForward=true;
+ try{while(!m.finished&&steps<maxSteps){
+  step(m,m.phase==='between'?1/30:1/45);steps++;
+  if(m.pointNumber!==lastPoint){lastPoint=m.pointNumber;stalled=0;}else if(++stalled>18000)throw Error('Match engine stalled');
+  if(untilGame&&(m.games.join(':')+':'+m.sets[0].length)!==initial)break;
+ }}finally{m._fastForward=false}
+ if(steps>=maxSteps&&!m.finished&&!untilGame)throw Error('Fast-forward exceeded step budget');
+ return steps;
+}
+function instant(m,untilGame=false){
+ const steps=fastForward(m,untilGame);
+ addLog(untilGame?'Skipped to next game (live engine)':'Fast-forwarded match (live engine)');
+ renderInfo();if(m.finished)showSummary();return steps;
+}
+function matchInsights(m){
+ const points=m.stats[0].pointsWon+m.stats[1].pointsWon;
+ const avg=points?(m.history.reduce((n,h)=>n+h.shots,0)/points).toFixed(1):'—';
+ const rallies=m.history.filter(h=>h.shots>=8).length;
+ const recent=m.history.slice(-12),momentum=[0,0];for(const h of recent)momentum[h.winner]++;
+ const lead=momentum[0]===momentum[1]?'Even':m.players[momentum[0]>momentum[1]?0:1].name.split(' ').slice(-1)[0];
+ const serving=m.finished?'—':m.players[currentServer(m)].name.split(' ').slice(-1)[0];
+ return {points,avg,longRallies:rallies,recentLead:lead,serving,stamina:m.stamina.map(v=>Math.round(v*100))};
+}
+function validateMatch(m){
+ const errors=[],points=m.stats[0].pointsWon+m.stats[1].pointsWon;
+ if(points!==m.pointNumber||points!==m.history.length)errors.push('point totals disagree');
+ if(m.stats[0].servicePoints+m.stats[1].servicePoints!==points)errors.push('service points disagree');
+ for(let i=0;i<2;i++){
+  const a=m.stats[i];if(a.firstIn>a.firstAttempts)errors.push('first-serve counts invalid');
+  if(a.firstWon>a.firstPlayed||a.secondWon>a.secondPlayed)errors.push('serve wins exceed attempts');
+  if(a.aces>a.servicePointsWon)errors.push('aces exceed service points');
+ }
+ if(m.finished&&m.winner!==0&&m.winner!==1)errors.push('missing winner');
+ if(m.points.some(v=>!Number.isInteger(v)||v<0))errors.push('invalid point counters');
+ if(m.games.some(v=>!Number.isInteger(v)||v<0||v>6))errors.push('invalid game counters');
+ if(m.tiebreak&&(m.games[0]!==6||m.games[1]!==6))errors.push('tiebreak outside six-all');
+ if(m.tiebreak&&m.finished)errors.push('finished match still in tiebreak');
+ if(m.finished&&m.points.some(Boolean))errors.push('finished match has leftover points');
+ if(m.finished&&m.sets[m.winner]?.filter((v,j)=>v>m.sets[1-m.winner][j]).length!==Math.ceil(m.bestOf/2))errors.push('incorrect winning set count');
+ if(m.sets[0].length!==m.sets[1].length)errors.push('unequal set counts');
+ for(let j=0;j<m.sets[0].length;j++){
+  const a=m.sets[0][j],b=m.sets[1][j];
+  if(!((a===7&&b===6)||(b===7&&a===6)||(Math.max(a,b)>=6&&Math.abs(a-b)===2&&Math.max(a,b)<=7)))errors.push('invalid completed set '+(j+1));
+ }
+ if(m.tiebreak&&(m.games[0]!==6||m.games[1]!==6))errors.push('tiebreak outside 6-6');
+ return errors;
+}
+const canvas=els.canvas,ctx=canvas.getContext('2d');let match=null,paused=true,last=performance.now(),accumulator=0;
+// True overhead projection. The entire doubles court remains visible.
+function courtPoint(x,y,z=0){return {x:420+x*111,y:340-y*217-z*19}}
+function line(x1,y1,x2,y2,color='#e7f5f3',width=2){const a=courtPoint(x1,y1),b=courtPoint(x2,y2);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke()}
+// Stable seating positions: crowd motion does not consume match RNG.
+const crowd=[];
+for(let i=0;i<1050;i++){
+ const seed=Math.sin(i*78.233+19.71)*43758.5453;
+ const frac=seed-Math.floor(seed),seed2=Math.sin(i*23.91+3.7)*17321.17;
+ const frac2=seed2-Math.floor(seed2);
+ const side=i%4;
+ let x,y;
+ if(side===0){x=15+frac*225;y=74+frac2*532}
+ else if(side===1){x=600+frac*225;y=74+frac2*532}
+ else if(side===2){x=15+frac*810;y=58+frac2*20}
+ else{x=15+frac*810;y=611+frac2*55}
+ crowd.push({x,y,phase:frac*6.283,speed:.25+frac2*.55,color:['#9eabb5','#e1bba0','#5d8a9d','#c7d4ce','#f0cc81','#64838a'][i%6]});
+}
+// Stadium environment is decorative and never modifies the deterministic match engine.
+function stadiumRect(x,y,w,h,fill,stroke){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,w-1,h-1)}}
+function stadiumText(t,x,y,size=10,color='#dbe8ec'){ctx.font=`600 ${size}px system-ui`;ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(t,x,y)}
+function renderCrowd(time){
+ // Surrounding stadium bowl, radial seating sections and stepped terraces.
+ stadiumRect(0,0,840,680,'#101d27');
+ stadiumRect(8,58,824,564,'#1a2c36','#52626c');
+ for(let side=0;side<2;side++){
+  const x=side===0?9:695;
+  for(let k=0;k<9;k++){
+   const xx=side===0?x+k*15:x+k*14;
+   stadiumRect(xx,72,17,536,k%2?'#293d47':'#334953');
+   ctx.fillStyle='#536b76';ctx.fillRect(xx,72,2,536);
+  }
+  for(let y=90;y<608;y+=88){stadiumRect(x,y,side===0?169:133,7,'#63717a');stadiumRect(x,y+7,side===0?169:133,3,'#19232c')}
+ }
+ for(let k=0;k<5;k++){
+  stadiumRect(14,12+k*9,812,7,k%2?'#273a45':'#334753');
+  stadiumRect(14,633+k*9,812,7,k%2?'#273a45':'#334753');
+ }
+ for(const p of crowd){
+  // Avoid putting spectators on the court or in the service concourse.
+  if(p.x>175&&p.x<696&&p.y>65&&p.y<625)continue;
+  const cheer=match&&match.cheerTime<2.6?match.cheerStrength*(1-match.cheerTime/2.6):0;
+  const wobble=Math.sin(time*p.speed+p.phase)*(.7+cheer*2.1)+Math.sin(time*5+p.phase)*cheer*1.2;
+  ctx.fillStyle='#101f2c88';ctx.beginPath();ctx.ellipse(p.x,p.y+2.5,3.4,2.1,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y+wobble,2.5,0,Math.PI*2);ctx.fill();
+ }
+ // Walkways and separation railings around the court.
+ stadiumRect(184,64,508,554,'#192c32','#6a8589');
+ stadiumRect(190,72,496,538,'#285a57');
+ ctx.strokeStyle='#a2b5b0';ctx.lineWidth=2;ctx.strokeRect(188,68,500,546);
+ // Stadium advertising panels, court-level wall and tunnel entrances.
+ for(const x of [194,676]){
+  stadiumRect(x,91,8,150,'#0c3c42');stadiumRect(x,441,8,145,'#0c3c42');
+ }
+ for(const y of [78,597]){
+  stadiumRect(270,y,300,12,'#0b4248');
+  stadiumText('TENNIS  •  WORLD TOUR',420,y+9,9,'#d3e6df');
+ }
+ stadiumRect(12,290,40,100,'#101c26','#76838c');stadiumText('EXIT',32,342,10);
+ stadiumRect(788,290,40,100,'#101c26','#76838c');stadiumText('EXIT',808,342,10);
+}
+function drawSeat(x,y,color='#24445a'){
+ ctx.fillStyle='#091d28';ctx.fillRect(x-1,y+5,34,7);
+ stadiumRect(x,y,32,15,color,'#72929a');
+ stadiumRect(x+3,y+3,26,5,'#527386');
+}
+function drawEquipment(x,y){
+ // Bags, bottles, towel, racket and ball container beside each player bench.
+ stadiumRect(x,y,19,14,'#172733','#8d9ca2');
+ ctx.fillStyle='#c6d7dc';ctx.fillRect(x+3,y+3,4,4);
+ ctx.fillStyle='#e9e9e2';ctx.fillRect(x+24,y+1,5,12);
+ ctx.fillStyle='#7ab6df';ctx.fillRect(x+24,y,5,4);
+ ctx.strokeStyle='#d6e3e4';ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(x+10,y+27,6,9,-.4,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle='#dfef80';ctx.beginPath();ctx.arc(x+33,y+25,3,0,Math.PI*2);ctx.fill();
+}
+function renderArenaFixtures(time){
+ // Umpire chair at net level, placed outside doubles sidelines.
+ const x=600,y=340;
+ ctx.strokeStyle='#d7e5e9';ctx.lineWidth=3;
+ for(const dx of [-10,10]){ctx.beginPath();ctx.moveTo(x+dx,y+24);ctx.lineTo(x+dx*.7,y-26);ctx.stroke()}
+ stadiumRect(x-14,y-29,28,12,'#e6f1f2','#173c49');
+ stadiumRect(x-14,y-19,28,5,'#194e67');
+ for(let j=0;j<4;j++)stadiumRect(x-17,y-12+j*9,12,2,'#dce8ea');
+ ctx.fillStyle='#efc6a3';ctx.beginPath();ctx.arc(x,y-35,6,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#e6f0ef';ctx.beginPath();ctx.ellipse(x,y-24,8,8,0,0,Math.PI*2);ctx.fill();
+ // Benches occupy the widened court apron (x 627..681), clear of
+ // the playing surface and the tiered seating beginning at x=695.
+ stadiumRect(627,200,54,91,'#173a42','#72939b');
+ stadiumRect(627,379,54,91,'#173a42','#72939b');
+ drawSeat(638,230,'#214b61');drawSeat(638,409,'#214b61');
+ ctx.save();ctx.translate(638,252);ctx.scale(.78,.78);drawEquipment(0,0);ctx.restore();
+ ctx.save();ctx.translate(638,431);ctx.scale(.78,.78);drawEquipment(0,0);ctx.restore();
+ stadiumText('P1',654,218,9);stadiumText('P2',654,397,9);
+ renderChangeoverDetails(time);
+ // Court-side officials, ball kids and scoreboard.
+ for(const [bx,by] of [[246,111],[591,111],[246,570],[591,570]]){
+  ctx.fillStyle='#132e40';ctx.beginPath();ctx.ellipse(bx,by,5,6,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e5c1a1';ctx.beginPath();ctx.arc(bx,by-6,3.2,0,Math.PI*2);ctx.fill();
+ }
+ stadiumRect(109,305,94,65,'#081922','#81979b');
+ stadiumText('CENTRE COURT',156,323,9,'#c8e2e4');
+ stadiumText('ATP EXHIBITION',156,339,8,'#a7c6c9');
+ stadiumRect(118,348,76,3,'#b7d868');
+ // Gentle non-flashing stadium lighting.
+ for(const lx of [38,802]){
+  ctx.fillStyle='#d4e5cf25';ctx.beginPath();ctx.arc(lx,52,17+Math.sin(time*.4)*.5,0,Math.PI*2);ctx.fill();
+  stadiumRect(lx-13,48,26,7,'#e2e9d4');
+ }
+}
+// Non-interactive arena animations; never use the seeded match RNG.
+function renderOfficial(x,y,shirt='#245f80',scale=1){
+ ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+ ctx.fillStyle='#07192366';ctx.beginPath();ctx.ellipse(1,5,7,4,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle=shirt;ctx.beginPath();ctx.ellipse(0,0,6,7,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#e8bd9a';ctx.beginPath();ctx.arc(0,-7,3.5,0,Math.PI*2);ctx.fill();ctx.restore();
+}
+function renderChangeoverDetails(time){
+ const m=match;
+ if(!m?.changeover)return;
+ const elapsed=m.changeover.elapsed,fade=clamp(Math.min(elapsed, m.changeover.duration-elapsed)/.65,0,1);
+ // Players take their seats. Water bottles and towels become visible.
+ for(const [i,y] of [[0,230],[1,409]]){
+  ctx.save();ctx.globalAlpha=fade;
+  ctx.fillStyle=i===0?'#f17e55':'#e8d568';
+  ctx.beginPath();ctx.ellipse(652,y,8,9,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#efc6a3';ctx.beginPath();ctx.arc(652,y-10,5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f1f1ed';ctx.fillRect(660,y-2,9,5);
+  ctx.fillStyle='#9dd9f5';ctx.fillRect(672,y-5,4,9);
+  ctx.restore();
+ }
+ ctx.save();ctx.globalAlpha=fade*.92;
+ stadiumRect(311,611,218,23,'#102e3e','#8db3bd');
+ stadiumText('CHANGEOVER  ·  WATER BREAK',420,627,11,'#f2f4dd');
+ ctx.restore();
+}
+function renderBallKidMovement(){
+ const e=match?.ballKidEvent;if(!e||match?.changeover)return;
+ const t=clamp(e.elapsed/e.duration,0,1),ease=t<.5?2*t*t:1-2*(1-t)*(1-t);
+ // A court-side ball kid retrieves the ball after a point, then returns.
+ const side=e.side===0?-1:1,fromX=side*1.46,fromY=e.y>0?1.15:-1.15;
+ const travel=t<.5?ease:1-ease;
+ const x=lerp(fromX,clamp(e.x,-1.27,1.27),travel),y=lerp(fromY,clamp(e.y,-1.12,1.12),travel);
+ const pt=courtPoint(x,y);renderOfficial(pt.x,pt.y,'#2b657e',.78);
+ if(t>=.5){ctx.fillStyle='#eafb40';ctx.beginPath();ctx.arc(pt.x+7,pt.y-3,3,0,Math.PI*2);ctx.fill()}
+}
+function renderCourt(){
+ const w=840,h=680,surface=match?.surface||els.surface.value;
+ const bg=surface==='clay'?'#a85139':surface==='grass'?'#36764b':'#16646b';
+ const court=surface==='clay'?'#c77955':surface==='grass'?'#498c56':'#2782ae';
+ const time=performance.now()/1000;
+ renderCrowd(time);
+ // Walkways, safety runoff and an understated stadium boundary.
+ ctx.fillStyle='#0a2029';ctx.fillRect(236,77,368,528);
+ ctx.fillStyle=bg;ctx.fillRect(245,81,350,518);
+ const D=COURT.doubles;
+ const a=courtPoint(-D,1),b=courtPoint(D,-1);
+ ctx.fillStyle=court;ctx.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);
+ const L='#f3f7f3';
+ line(-D,1,D,1,L,2.6);line(-D,-1,D,-1,L,2.6);
+ line(-D,1,-D,-1,L,2.4);line(D,1,D,-1,L,2.4);
+ line(-1,1,-1,-1,L,2);line(1,1,1,-1,L,2);
+ line(-1,COURT.service,1,COURT.service,L,2);line(-1,-COURT.service,1,-COURT.service,L,2);
+ line(0,COURT.service,0,-COURT.service,L,2);
+ line(0,.96,0,1,L,2);line(0,-.96,0,-1,L,2);
+ renderArenaFixtures(time);
+ // Court-contact marks remain at the exact landing coordinates for half a second.
+ for(const mark of match?.bounceMarks||[]){
+  const pt=courtPoint(mark.x,mark.y),fade=Math.max(0,1-mark.age/mark.duration);
+  ctx.save();ctx.globalAlpha=fade;
+  ctx.fillStyle='#f3fb9c';ctx.beginPath();ctx.ellipse(pt.x,pt.y,4.5,3.2,0,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#fffbd0';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(pt.x,pt.y,7+mark.age*18,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+ }
+ renderBallKidMovement();
+ // Net, posts, and a faint mesh.
+ const nl=courtPoint(-1.40,0),nr=courtPoint(1.40,0);
+ ctx.strokeStyle='#122f39';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(nl.x,nl.y);ctx.lineTo(nr.x,nr.y);ctx.stroke();
+ ctx.strokeStyle='#e4f0f1';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(nl.x,nl.y-2);ctx.lineTo(nr.x,nr.y-2);ctx.stroke();
+ ctx.strokeStyle='#ffffff55';ctx.lineWidth=.6;
+ for(let x=nl.x;x<nr.x;x+=8){ctx.beginPath();ctx.moveTo(x,336);ctx.lineTo(x,344);ctx.stroke()}
+ const actors=match?.actors||[{x:0,y:1.08},{x:0,y:-1.08}];
+ for(let i=0;i<2;i++){
+  const actor=actors[i],p=courtPoint(actor.x,actor.y);
+  if(match?.changeover)continue;
+  const vx=actor.vx||0,vy=actor.vy||0;
+  ctx.beginPath();ctx.ellipse(p.x+2,p.y+4,11,6,0,0,Math.PI*2);ctx.fillStyle='#071e2988';ctx.fill();
+  // Animated split steps, two legs, both arms and visible hands.
+  const moving=Math.min(1,Math.hypot(vx,vy)/.95);
+  const gait=Math.sin(time*(8+moving*6)+i)*moving*5;
+  const split=actor.stance==='ready'&&match?.phase==='rally'?2:0;
+  const skin='#e9bd97';
+  ctx.strokeStyle='#d8e3e8';ctx.lineWidth=3.6;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(p.x-3,p.y+5);ctx.lineTo(p.x-6+gait,p.y+13+split);
+  ctx.moveTo(p.x+3,p.y+5);ctx.lineTo(p.x+6-gait,p.y+13+split);ctx.stroke();
+  ctx.fillStyle='#f4f6f7';ctx.beginPath();ctx.ellipse(p.x-6+gait,p.y+13+split,4,2.5,0,0,Math.PI*2);ctx.ellipse(p.x+6-gait,p.y+13+split,4,2.5,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=i===0?'#f17e55':'#e8d568';ctx.beginPath();ctx.ellipse(p.x,p.y,8,10,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=skin;ctx.beginPath();ctx.arc(p.x,p.y-9,5,0,Math.PI*2);ctx.fill();
+  // Brief, non-intrusive reaction after a point; larger for game-winning points.
+  if(match?.reaction && match.reaction.winner===i){
+   const reaction=match.reaction,fade=1-reaction.elapsed/reaction.duration;
+   const lift=reaction.importance==='game'?15:8;
+   ctx.save();ctx.globalAlpha=Math.max(0,fade)*.82;
+   ctx.strokeStyle='#d9f477';ctx.lineWidth=2;
+   ctx.beginPath();ctx.arc(p.x,p.y-13-lift*(1-fade),11+5*(1-fade),0,Math.PI*2);ctx.stroke();
+   ctx.restore();
+  }
+  const serving=actor.stance==='toss'||actor.stance==='serve';
+  const swinging=(actor.strokeTimer||0)>0;
+  const hand=swinging&&actor.strokeSide==='backhand'?-1:1;
+  const anticipation=actor.anticipation||0;
+  const progress=swinging?1-actor.strokeTimer/.30:0;
+  const swingArc=swinging?Math.sin(progress*Math.PI)*12:0;
+  const armRaise=serving?(actor.stance==='serve'?-24:-16):swinging?-10-swingArc:anticipation>.05?-11:-5;
+  const gripX=p.x+hand*(13+swingArc*.65),gripY=p.y+armRaise;
+  // Non-racket arm balances the body; the tossing arm reaches up on serves.
+  const freeX=p.x-hand*(serving?11:10+moving*2);
+  const freeY=p.y+(serving?-19:anticipation>.05?-9:2+gait*.35);
+  ctx.strokeStyle=skin;ctx.lineWidth=3.2;ctx.beginPath();
+  ctx.moveTo(p.x-hand*5,p.y-3);ctx.lineTo(freeX,freeY);
+  ctx.moveTo(p.x+hand*5,p.y-3);ctx.lineTo(gripX,gripY);ctx.stroke();
+  // Hands are separate from the arm strokes, visible against the court.
+  ctx.fillStyle=skin;ctx.beginPath();ctx.arc(freeX,freeY,3.3,0,Math.PI*2);ctx.arc(gripX,gripY,3.3,0,Math.PI*2);ctx.fill();
+  const racketX=gripX+hand*(5+swingArc*.20),racketY=gripY-5;
+  ctx.strokeStyle='#c7d5db';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(gripX,gripY);ctx.lineTo(racketX,racketY);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(racketX+hand*3,racketY-6,6,9,-hand*.35,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#c7d5db66';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(racketX,racketY-12);ctx.lineTo(racketX+hand*6,racketY);ctx.stroke();
+ }
+ if(match?.ballTrail?.length){for(const t of match.ballTrail){const q=courtPoint(t.x,t.y,t.z),alpha=Math.max(0,1-t.age/.19);ctx.save();ctx.globalAlpha=alpha*.48;ctx.fillStyle='#c9f5ff';ctx.beginPath();ctx.arc(q.x,q.y,2.1+alpha*2.2,0,Math.PI*2);ctx.fill();ctx.restore();}}
+ if(match?.ball){
+  const ball=match.ball,shadow=courtPoint(ball.x,ball.y),p=courtPoint(ball.x,ball.y,ball.z);
+  const height=clamp(ball.z,0,4),radius=clamp(4.5+height*3.1,4.5,16.9);
+  ctx.fillStyle='#081b27bb';ctx.beginPath();ctx.ellipse(shadow.x,shadow.y,5.7,3.8,0,0,Math.PI*2);ctx.fill();
+  if(height>.18){ctx.strokeStyle='#fff8b9cc';ctx.lineWidth=1.8;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(shadow.x,shadow.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.setLineDash([])}
+  ctx.save();ctx.shadowColor='#edff69';ctx.shadowBlur=height>.2?8:2;ctx.beginPath();ctx.arc(p.x,p.y,radius,0,Math.PI*2);ctx.fillStyle='#eafb40';ctx.fill();ctx.strokeStyle='#fbffcb';ctx.lineWidth=1.3;ctx.stroke();ctx.restore();
+  if(height<.13){ctx.strokeStyle='#eafa72aa';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(shadow.x,shadow.y,10,4,0,0,Math.PI*2);ctx.stroke()}
+ }
+ ctx.fillStyle='#ffffffdb';ctx.font='bold 13px system-ui';ctx.textAlign='center';
+ ctx.fillText(match?.players[0].name||'PLAYER 1',420,103);
+ ctx.fillText(match?.players[1].name||'PLAYER 2',420,584);
+ ctx.textAlign='left';ctx.font='bold 12px system-ui';ctx.fillText('ATP EXHIBITION',14,30);
+ ctx.font='11px system-ui';ctx.fillText('TOP-DOWN · TENNIS SIMULATOR · v0.97',14,47);
+ const active=match?.phase==='rally'?match.rally?.segments[match.rally.index]:null;
+ if(active){ctx.save();ctx.fillStyle='#071d2ddd';ctx.fillRect(12,58,186,42);ctx.fillStyle='#d6f4e8';ctx.font='bold 12px system-ui';ctx.fillText('SPIN: '+spinLabel(active),20,75);ctx.fillStyle='#d4e4ef';ctx.font='11px system-ui';ctx.fillText(shotSpeed(active)>=FAST_TRAIL_THRESHOLD?'FAST SHOT · AIR TRAIL':'SHOT: '+(active.type||'rally').toUpperCase(),20,91);ctx.restore();}
+}
+function renderScore(){const m=match;const labels=m?pointLabels(m):['0','0'];let html='<div class="heading">PLAYER</div><div class="heading">SETS</div><div class="heading">GAMES</div><div class="heading">POINTS</div>';for(let i=0;i<2;i++){const p=m?.players[i]||PLAYERS[i],setWins=m?m.sets[i].filter((n,j)=>n>m.sets[1-i][j]).length:0;html+=`<div class="${m&&!m.finished&&currentServer(m)===i?'serving':''}">${p.name} <small style="opacity:.65">${i===0?'▲ FAR':'▼ NEAR'}</small></div><div class="number">${setWins}</div><div class="number">${m?m.games[i]:0}</div><div class="number">${labels[i]}</div>`}els.score.innerHTML=html}
+function pct(a,b){return b?Math.round(a/b*100)+'%':'—'}
+function renderStats(){const m=match;if(!m){els.stats.innerHTML='<div class="muted">Statistics appear when a match starts.</div>';return}const s=m.stats;const metrics=[['Aces',x=>x.aces],['Double faults',x=>x.doubleFaults],['Serve faults',x=>x.serveFaults],['First serve in',x=>pct(x.firstIn,x.firstAttempts)],['First serve points won',x=>pct(x.firstWon,x.firstPlayed)],['Second serve points won',x=>pct(x.secondWon,x.secondPlayed)],['Winners',x=>x.winners],['Unforced errors',x=>x.unforcedErrors],['Break points won',x=>x.breakConverted+'/'+x.breakPoints],['Total points won',x=>x.pointsWon],['Longest rally',x=>x.maxRally]];els.stats.innerHTML=metrics.map(([name,f])=>`<div class="stat"><label>${name}</label><div class="row"><strong>${f(s[0])}</strong><strong>${f(s[1])}</strong></div></div>`).join('')}
+function renderInsights(){
+ if(!match){els.insights.textContent='Insights appear after play begins.';els.timeline.textContent='';return;}
+ const m=match,x=matchInsights(m),errors=validateMatch(m);
+ els.insights.innerHTML=`<div class="row"><span>Points played</span><strong>${x.points}</strong></div><div class="row"><span>Average shots / point</span><strong>${x.avg}</strong></div><div class="row"><span>Rallies of 8+ shots</span><strong>${x.longRallies}</strong></div><div class="row"><span>Last 12 points</span><strong>${x.recentLead}</strong></div><div class="row"><span>Next server</span><strong>${x.serving}</strong></div><div class="row"><span>Stamina</span><strong>${x.stamina.join('% / ')}%</strong></div><div class="row"><span>Score integrity</span><strong style="color:${errors.length?'#ffab91':'#c9ef72'}">${errors.length?errors.join(', '):'OK'}</strong></div>`;
+ els.timeline.textContent='Last points: '+(m.history.slice(-10).map(h=>(h.winner===0?'▲':'▼')+(h.ace?'A':h.doubleFault?'D':h.shots)).join('  ')||'—');
+}
+function renderInfo(){renderScore();renderStats();renderInsights();if(!match)return;els.status.textContent=match.finished?'Match complete · '+match.players[match.winner].name+' wins '+matchScore(match):match.changeover?'Changeover · players resting':match.phase==='rally'?'Rally · '+(match.rally?.segments[match.rally.index]?.tactic||match.rally?.segments[match.rally.index]?.type||'groundstroke')+' · '+(match.rally?.shots||0)+' shots':match.tiebreak?'Tiebreak · '+matchScore(match):'Set '+(match.sets[0].length+1)+' · '+matchScore(match);els.badge.textContent=match.finished?'FINAL':paused?'PAUSED':'LIVE';updateBroadcast($('broadcastLower')?.textContent||'Match in progress');$('pause').textContent=paused?'Resume':'Pause';$('pause').disabled=match.finished;$('nextGame').disabled=match.finished}
+function showSummary(){if(!match?.finished)return;const m=match,w=m.winner,s=m.stats;els.summaryInner.innerHTML=`<div class="muted">MATCH COMPLETE</div><h2>${m.players[w].name} wins!</h2><p>${matchScore(m)}</p><table><tr><th>Statistic</th><th>${m.players[0].name.split(' ').slice(-1)[0]}</th><th>${m.players[1].name.split(' ').slice(-1)[0]}</th></tr><tr><td>Aces</td><td>${s[0].aces}</td><td>${s[1].aces}</td></tr><tr><td>Winners</td><td>${s[0].winners}</td><td>${s[1].winners}</td></tr><tr><td>Unforced errors</td><td>${s[0].unforcedErrors}</td><td>${s[1].unforcedErrors}</td></tr><tr><td>Points won</td><td>${s[0].pointsWon}</td><td>${s[1].pointsWon}</td></tr><tr><td>First serve %</td><td>${pct(s[0].firstIn,s[0].firstAttempts)}</td><td>${pct(s[1].firstIn,s[1].firstAttempts)}</td></tr><tr><td>Longest rally</td><td>${s[0].maxRally}</td><td>${s[1].maxRally}</td></tr></table><p class="muted">${m.pointNumber} points · ${matchInsights(m).avg} shots per point · ${validateMatch(m).length?'Statistics require review':'Score checks passed'}</p><button class="primary" id="closeSummary">Close summary</button>`;els.summary.classList.add('show');$('closeSummary').onclick=()=>els.summary.classList.remove('show')}
+function start(){if(activeFixture||activeSeasonFixture){els.status.textContent='Finish the current fixture before starting an exhibition.';return}if(els.p1.value===els.p2.value){els.status.textContent='Choose two different players.';return}const p1=PLAYERS.find(x=>x.id===els.p1.value),p2=PLAYERS.find(x=>x.id===els.p2.value);match=newMatch(p1,p2,els.surface.value,Math.floor(Math.random()*4294967296));paused=false;accumulator=0;match.phase='between';match.phaseTime=0;match.recovery={duration:3.1,elapsed:0,server:currentServer(match),collected:true};els.summary.classList.remove('show');els.log.innerHTML='';addLog('Match started · '+p1.name+' vs '+p2.name);updateBroadcast(p1.name+' vs '+p2.name);$('pause').disabled=false;$('nextGame').disabled=false;els.courtTag.textContent=els.surface.value.toUpperCase()+' COURT · EXHIBITION';renderInfo()}
+
+// Tournament state is deliberately separate from exhibition match state.
+let tournament=null,activeFixture=null;
+const tourEls={mode:$('mode'),surface:$('tourSurface'),seed:$('tourSeed'),roster:$('tourRoster'),content:$('tourContent'),bracket:$('bracket'),notice:$('tourNotice')};
+function tourSelected(){return Array.from(tourEls.roster.querySelectorAll('input:checked')).map(x=>x.value)}
+function seededDraw(ids,rankedIds=null){
+ if(![8,16,32].includes(ids.length)||new Set(ids).size!==ids.length||ids.some(id=>!PLAYERS.some(p=>p.id===id)))throw Error('Choose 8, 16 or 32 distinct players');
+ const ordered=rankedIds?[...rankedIds]:[...ids].sort((a,b)=>PLAYERS.findIndex(p=>p.id===a)-PLAYERS.findIndex(p=>p.id===b));
+ if(ordered.length!==ids.length||new Set(ordered).size!==ids.length||ordered.some(id=>!ids.includes(id)))throw Error('Invalid ranked draw');
+ // Recursive seeded bracket: seeds 1 and 2 cannot meet before the final.
+ let slots=[0];while(slots.length<ordered.length){const size=slots.length*2-1;slots=slots.flatMap(v=>[v,size-v]);}
+ return ordered.length===8?[ordered[0],ordered[7],ordered[3],ordered[4],ordered[2],ordered[5],ordered[1],ordered[6]]:slots.map(n=>ordered[n]);
+}
+function createTournament(ids,surface,seed,rankedIds=null){
+ const draw=seededDraw(ids,rankedIds),numeric=Number(seed);
+ if(!['hard','clay','grass'].includes(surface)||!Number.isInteger(numeric)||numeric<1||numeric>4294967295)throw Error('Invalid surface or seed');
+ const count=draw.length,roundCount=Math.log2(count),rounds=[];
+ for(let r=0;r<roundCount;r++){
+  const fixtures=[];for(let i=0;i<count/(2**(r+1));i++)fixtures.push({id:r+'-'+i,round:r,slot:i,players:r===0?[draw[2*i],draw[2*i+1]]:[null,null],winner:null,score:null,matchSeed:null});
+  rounds.push(fixtures);
+ }
+ return {surface,seed:numeric,entrants:[...ids],rounds,champion:null,completed:0};
+}
+function roundName(total,index){return ['Final','Semifinals','Quarterfinals','Round of 16','Round of 32'][total-index-1]||'Round '+(index+1)}
+function availableFixtures(t){return t.rounds.flat().filter(f=>f.players.every(Boolean)&&!f.winner)}
+function fixtureById(t,id){return t.rounds.flat().find(f=>f.id===id)}
+function commitFixture(t,id,winner,score){
+ const f=fixtureById(t,id);if(!f||f.winner||!f.players.includes(winner)||!f.players.every(Boolean))throw Error('Invalid fixture result');
+ f.winner=winner;f.score=score;t.completed++;
+ if(f.round===t.rounds.length-1){t.champion=winner;return}
+ const next=t.rounds[f.round+1][Math.floor(f.slot/2)];next.players[f.slot%2]=winner;
+}
+function fixtureSeed(t,f){let hash=t.seed>>>0;for(const ch of f.id)hash=(Math.imul(hash^ch.charCodeAt(0),1664525)+1013904223)>>>0;return hash||1}
+function fixtureMatch(t,f){const a=PLAYERS.find(p=>p.id===f.players[0]),b=PLAYERS.find(p=>p.id===f.players[1]);const m=newMatch(a,b,t.surface,fixtureSeed(t,f));m.phase='between';m.recovery={duration:3.1,elapsed:0,server:currentServer(m),collected:true};return m}
+function simulateFixture(t,id){const f=fixtureById(t,id);if(!f||f.winner||!f.players.every(Boolean))throw Error('Fixture not ready');const m=fixtureMatch(t,f);fastForward(m);const errors=validateMatch(m);if(errors.length)throw Error(errors.join('; '));commitFixture(t,id,m.players[m.winner].id,matchScore(m));return m}
+function safeName(id){return PLAYERS.find(p=>p.id===id)?.name||'TBD'}
+function renderTournament(){
+ const t=tournament;if(tourEls.mode.value==='tournament')tourEls.content.classList.remove('tourHidden');else tourEls.content.classList.add('tourHidden');
+ if(!t){tourEls.bracket.innerHTML='';tourEls.notice.textContent='Choose eight entrants, then create the draw.';return}
+ tourEls.bracket.innerHTML=t.rounds.map((round,r)=>`<div class="round"><h3>${roundName(t.rounds.length,r)}</h3>${round.map(f=>`<div class="fixture"><div class="${f.winner&&f.winner===f.players[0]?'winner':''}">${f.players[0]?safeName(f.players[0]):'Awaiting winner'}</div><div class="${f.winner&&f.winner===f.players[1]?'winner':''}">${f.players[1]?safeName(f.players[1]):'Awaiting winner'}</div><div class="fixtureMeta">${f.score||'Not played'}${activeFixture===f.id?' · ON COURT':''}</div>${f.players.every(Boolean)&&!f.winner?`<button data-watch="${f.id}">Watch match</button> <button data-sim="${f.id}">Simulate</button>`:''}</div>`).join('')}</div>`).join('');
+ tourEls.notice.textContent=t.champion?'🏆 Champion: '+safeName(t.champion):`Tournament in progress · ${t.completed}/7 matches completed · ${t.surface} court`;
+ $('simulateRound').disabled=!!t.champion||!!activeFixture;$('simulateTour').disabled=!!t.champion||!!activeFixture;
+ for(const b of tourEls.bracket.querySelectorAll('[data-watch]'))b.onclick=()=>watchFixture(b.dataset.watch);
+ for(const b of tourEls.bracket.querySelectorAll('[data-sim]'))b.onclick=()=>{if(activeFixture)return;try{simulateFixture(t,b.dataset.sim);renderTournament()}catch(e){tourEls.notice.textContent='Simulation error: '+e.message}};
+}
+function watchFixture(id){if(activeFixture)return;const f=fixtureById(tournament,id);if(!f||f.winner||!f.players.every(Boolean))return;activeFixture=id;match=fixtureMatch(tournament,f);paused=false;accumulator=0;els.speed.value='1';els.p1.value=f.players[0];els.p2.value=f.players[1];els.surface.value=tournament.surface;els.summary.classList.remove('show');els.log.innerHTML='';addLog('Tournament · '+safeName(f.players[0])+' vs '+safeName(f.players[1]));updateBroadcast(safeName(f.players[0])+' vs '+safeName(f.players[1]));$('pause').disabled=false;$('nextGame').disabled=false;els.courtTag.textContent=tournament.surface.toUpperCase()+' COURT · '+roundName(tournament.rounds.length,f.round).toUpperCase();renderInfo();renderTournament()}
+function finalizeTournamentMatch(){if(!activeFixture||!match?.finished)return;const f=fixtureById(tournament,activeFixture);if(!f.winner)commitFixture(tournament,activeFixture,match.players[match.winner].id,matchScore(match));activeFixture=null;renderTournament()}
+function simulateRound(t){const ready=availableFixtures(t);if(!ready.length)return 0;const round=ready[0].round;let n=0;for(const f of ready.filter(f=>f.round===round)){simulateFixture(t,f.id);n++}return n}
+for(const p of PLAYERS){const label=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.value=p.id;cb.checked=PLAYERS.indexOf(p)<8;label.appendChild(cb);const name=document.createElement('span');name.textContent=p.name;label.appendChild(name);tourEls.roster.appendChild(label)}
+tourEls.mode.onchange=()=>{if(activeFixture){tourEls.mode.value='tournament';return}renderTournament();renderSeason()};
+$('createTour').onclick=()=>{if(activeFixture){tourEls.notice.textContent='Finish the match on court first.';return}try{tournament=createTournament(tourSelected(),tourEls.surface.value,tourEls.seed.value);renderTournament()}catch(e){tourEls.notice.textContent=e.message}};
+$('simulateRound').onclick=()=>{if(!tournament||activeFixture)return;try{simulateRound(tournament);renderTournament()}catch(e){tourEls.notice.textContent='Simulation error: '+e.message}};
+$('simulateTour').onclick=()=>{if(!tournament||activeFixture)return;try{while(!tournament.champion)if(!simulateRound(tournament))throw Error('Draw cannot progress');renderTournament()}catch(e){tourEls.notice.textContent='Simulation error: '+e.message}};
+renderTournament();
+
+// v0.7: illustrative ATP-style season, deterministic schedule and cumulative rankings.
+const SEASON_EVENTS=[
+ {name:'Australian Open',surface:'hard',tier:'Grand Slam',week:3,points:[2000,1300,800,400],major:true},
+ {name:'Pacific Championships',surface:'hard',tier:'500',week:5,points:[500,330,200,100]},
+ {name:'Desert Masters',surface:'hard',tier:'1000',week:10,points:[1000,650,400,200]},
+ {name:'Mediterranean Clay Open',surface:'clay',tier:'250',week:15,points:[250,165,100,50]},
+ {name:'European Clay Masters',surface:'clay',tier:'1000',week:19,points:[1000,650,400,200]},
+ {name:'Roland-Garros',surface:'clay',tier:'Grand Slam',week:22,points:[2000,1300,800,400],major:true},
+ {name:'Grass Court Classic',surface:'grass',tier:'250',week:25,points:[250,165,100,50]},
+ {name:'Wimbledon',surface:'grass',tier:'Grand Slam',week:27,points:[2000,1300,800,400],major:true},
+ {name:'North American Hardcourt Masters',surface:'hard',tier:'1000',week:33,points:[1000,650,400,200]},
+ {name:'US Open',surface:'hard',tier:'Grand Slam',week:37,points:[2000,1300,800,400],major:true},
+ {name:'Autumn Indoor Masters',surface:'hard',tier:'1000',week:43,points:[1000,650,400,200]},
+ {name:'Tour Season Finale',surface:'hard',tier:'1000',week:47,points:[1000,650,400,200]}
+];
+function createSeason(seed){const n=Number(seed);if(!Number.isInteger(n)||n<1||n>4294967295)throw Error('Season seed must be between 1 and 4294967295');return {seed:n,next:0,events:SEASON_EVENTS.map((e,i)=>({...e,index:i,entrants:[],champion:null,results:null,bracket:null})),standings:Object.fromEntries(PLAYERS.map(p=>[p.id,{points:0,played:0,wins:0,titles:0,fatigue:0}])),finished:false}}
+function seasonRankings(season){return PLAYERS.map(p=>({id:p.id,name:p.name,...season.standings[p.id]})).sort((a,b)=>b.points-a.points||b.titles-a.titles||b.wins-a.wins||PLAYERS.findIndex(p=>p.id===a.id)-PLAYERS.findIndex(p=>p.id===b.id))}
+// v0.85: deterministic entry lists with two wildcards and a small qualifying pathway.
+// Qualification is a simplified single-round contest, not an official ATP qualifying format.
+function entryPlan(season,eventIndex){
+ const event=season.events[eventIndex],requestedSize=event.major?32:16;
+ const ranked=eventIndex===0?PLAYERS.map(p=>p.id):seasonRankings(season).map(x=>x.id);
+ const candidates=ranked.filter(id=>!season.careerUnavailable?.includes(id)).map((id,i)=>{
+  const p=PLAYERS.find(x=>x.id===id),rec=season.standings[id];
+  const rest=rec.fatigue>.72?38:rec.fatigue>.52?19:rec.fatigue>.35?7:0;
+  const rotation=((Math.imul(eventIndex+1,1103515245)^Math.imul(PLAYERS.findIndex(x=>x.id===id)+1,12345)^season.seed)>>>0)%13;
+  return {id,priority:125-i*1.5+(p[event.surface]-85)*1.4-rest+rotation*.65};
+ }).sort((a,b)=>b.priority-a.priority||ranked.indexOf(a.id)-ranked.indexOf(b.id));
+ // If a late-career field is depleted, use the largest valid knockout draw instead of crashing.
+ const size=[32,16,8].find(n=>n<=requestedSize&&n<=candidates.length);
+ if(!size)throw Error("Not enough active players to run a tournament (minimum eight).");
+ const wildcardCount=Math.min(2,Math.max(0,candidates.length-size));
+ const qualifierCount=Math.min(event.major?4:2,Math.floor(Math.max(0,candidates.length-size-wildcardCount)/2));
+ const directCount=size-wildcardCount-qualifierCount;
+ const direct=candidates.slice(0,directCount).map(x=>x.id);
+ const pool=candidates.slice(directCount);
+ // Wildcards reward local surface specialists and rising players outside direct entry.
+ const wildcards=[...pool].sort((a,b)=>{
+  const pa=PLAYERS.find(p=>p.id===a.id),pb=PLAYERS.find(p=>p.id===b.id);
+  return (pb[event.surface]+(pb.age<=22?8:0))-(pa[event.surface]+(pa.age<=22?8:0))||a.id.localeCompare(b.id);
+ }).slice(0,wildcardCount).map(x=>x.id);
+ const qualifyingPool=pool.filter(x=>!wildcards.includes(x.id)).slice(0,qualifierCount*2);
+ const qualifyingResults=[],qualifiers=[];
+ const random=rng((season.seed^Math.imul(eventIndex+1,0x9e3779b9))>>>0);
+ for(let i=0;i<qualifyingPool.length;i+=2){
+  const a=qualifyingPool[i],b=qualifyingPool[i+1];if(!b)break;
+  const probability=clamp(.5+(a.priority-b.priority)*.018,.18,.82);
+  const winner=random()<probability?a.id:b.id;
+  qualifyingResults.push({players:[a.id,b.id],winner});qualifiers.push(winner);
+ }
+ return {entrants:[...direct,...wildcards,...qualifiers],direct,wildcards,qualifiers,qualifyingResults};
+}
+function seasonEntrants(season,eventIndex){return entryPlan(season,eventIndex).entrants}
+// v0.87: event-specific seeding prioritises accumulated tour points, then surface
+// proficiency, and uses roster order only as a stable final tiebreaker.
+function eventSeedOrder(season,event,entrants){
+ return [...entrants].sort((a,b)=>{
+  const pa=PLAYERS.find(p=>p.id===a),pb=PLAYERS.find(p=>p.id===b);
+  const sa=season.standings[a]?.points||0,sb=season.standings[b]?.points||0;
+  return sb-sa||pb[event.surface]-pa[event.surface]||PLAYERS.findIndex(p=>p.id===a)-PLAYERS.findIndex(p=>p.id===b);
+ });
+}
+function defendingChampion(c,event){
+ const past=(c?.history||[]).slice().reverse();
+ for(const year of past){const found=(year.champions||[]).find(x=>x.event===event.name);if(found)return found.winner;}
+ return null;
+}
+// Complete placement table; every round has a distinct reward, including the
+// first-round exit. Values are illustrative and scale with tournament tier.
+function eventRoundPoints(event,roundCount){
+ const champion=event.points[0],finalist=event.points[1],semi=event.points[2],quarter=event.points[3];
+ const values=[champion,finalist,semi,quarter];
+ while(values.length<=roundCount)values.push(Math.max(1,Math.round(values[values.length-1]*.45)));
+ return values.slice(0,roundCount+1);
+}
+
+function seasonPointsFor(t,f,id,event){if(f.winner===id)return f.round===t.rounds.length-1?event.points[0]:f.round===t.rounds.length-2?event.points[1]:event.points[2];return f.round===0?Math.round(event.points[3]/2):0}
+function prepareSeasonEvent(season){
+ if(season.finished)return null;
+ const event=season.events[season.next];if(event.bracket)return event;
+ // Players recover between scheduled events, including those who sit out.
+ for(const id of Object.keys(season.standings))season.standings[id].fatigue=Math.max(0,season.standings[id].fatigue-.22);
+ const plan=entryPlan(season,season.next),ids=plan.entrants;
+ event.entryPlan={direct:plan.direct,wildcards:plan.wildcards,qualifiers:plan.qualifiers,qualifyingResults:plan.qualifyingResults};
+ event.entrants=ids;
+ event.defendingChampion=defendingChampion(career,event);
+ event.seedOrder=eventSeedOrder(season,event,ids);
+ event.seeds=event.seedOrder.slice(0,Math.min(ids.length===32?8:4,ids.length));
+ event.bracket=createTournament(ids,event.surface,((season.seed+Math.imul(season.next+1,2654435761))>>>0)||1,event.seedOrder);
+ return event;
+}
+function seasonFixtureMatch(season,f){const event=prepareSeasonEvent(season),m=fixtureMatch(event.bracket,f);
+ const a=season.standings[f.players[0]].fatigue,b=season.standings[f.players[1]].fatigue;
+ if(career&&season===window.__activeCareerSeason){m.players=m.players.map(p=>matchReadyPlayer(p,event.surface));}
+ m.bestOf=event.major?5:3; m.grandSlam=!!event.major; m.stamina=[Math.max(.70,1-a*.24),Math.max(.70,1-b*.24)];return m;
+}
+function recordSeasonFixture(season,id,m){
+ const event=season.events[season.next],t=event.bracket,f=fixtureById(t,id);
+ if(!f||f.winner||!m.finished)throw Error('Season fixture is not finished');
+ const winner=m.players[m.winner].id;
+ commitFixture(t,id,winner,matchScore(m));
+ for(const player of f.players){const rec=season.standings[player];rec.played++;if(player===winner)rec.wins++;
+   rec.fatigue=Math.min(1,rec.fatigue+.035+m.pointNumber*.00025);
+ }
+ if(t.champion)completeSeasonEvent(season);
+ return winner;
+}
+function completeSeasonEvent(season){
+ const event=season.events[season.next],t=event.bracket;
+ if(!t?.champion)throw Error('Event is not complete');
+ for(const id of event.entrants){const rec=season.standings[id],wins=t.rounds.flat().filter(f=>f.winner===id).length;
+   const rounds=t.rounds.length,remaining=rounds-wins;
+   rec.points+=eventRoundPoints(event,rounds)[remaining];
+   if(remaining===0)rec.titles++;
+ }
+ event.champion=t.champion;
+ event.results=t.rounds.flat().map(f=>({id:f.id,winner:f.winner,score:f.score,players:[...f.players]}));
+ season.next++;season.finished=season.next===season.events.length;
+ if(career&&season===window.__activeCareerSeason)updateSeasonForm(career,season);
+ return event;
+}
+function simulateSeasonFixture(season,id){const event=prepareSeasonEvent(season),f=fixtureById(event.bracket,id);
+ if(!f||f.winner||!f.players.every(Boolean))throw Error('Fixture not ready');
+ const m=seasonFixtureMatch(season,f);fastForward(m);
+ const issues=validateMatch(m);if(issues.length)throw Error(issues.join('; '));
+ recordSeasonFixture(season,id,m);return m;
+}
+function simulateSeasonEvent(season){if(season.finished)return null;
+ const event=prepareSeasonEvent(season);
+ while(!event.champion){const fixtures=availableFixtures(event.bracket);if(!fixtures.length)throw Error('Season bracket stalled');
+   for(const f of fixtures)simulateSeasonFixture(season,f.id);
+ }
+ return event;
+}
+let season=null;
+let career=null;
+const seasonEls={content:$('seasonContent'),seed:$('seasonSeed'),notice:$('seasonNotice'),calendar:$('seasonCalendar'),standings:$('seasonStandings'),bracket:$('seasonBracket')};
+const SEASON_SAVE_KEY='tennis-simulator-season-v08';
+const CAREER_SAVE_KEY='tennis-simulator-career-v08';
+// Keep the v0.8 storage keys so existing careers remain loadable.
+let activeSeasonFixture=null;
+const calendarFilter=$('calendarFilter'),profilePlayer=$('profilePlayer'),playerProfile=$('playerProfile');
+for(const p of PLAYERS){const opt=document.createElement('option');opt.value=p.id;opt.textContent=p.name;profilePlayer.appendChild(opt)}
+profilePlayer.value='alcaraz';
+function playerProfileData(id,activeSeason=season){const p=PLAYERS.find(x=>x.id===id);if(!p)return null;const rec=activeSeason?.standings[id];return {name:p.name,country:p.country,style:p.style||playerStyle(p),form:p.form??50,confidence:p.confidence??50,attributes:{Serve:p.serve,Return:p.return,Groundstrokes:p.ground,Movement:p.movement,Consistency:p.consistency,Net:p.net,Hard:p.hard,Clay:p.clay,Grass:p.grass},record:rec?{points:rec.points,wins:rec.wins,losses:rec.played-rec.wins,titles:rec.titles,fatigue:rec.fatigue}:null}}
+// v0.92: derive player dossier statistics from actual completed fixtures only.
+function playerMatchHistory(id,activeSeason=season,activeCareer=career){
+ const years=[];
+ for(const h of activeCareer?.matchHistory||[])if(h.players?.includes(id))years.push({...h});
+ // Avoid counting the current season twice when a career year has been archived.
+ if(activeSeason)for(const event of activeSeason.events||[])for(const f of event.results||[]){
+  if(f.players?.includes(id)&&f.winner)years.push({year:activeCareer?.year||2026,event:event.name,surface:event.surface,major:!!event.major,players:[...f.players],winner:f.winner,score:f.score});
+ }
+ return years;
+}
+function playerSurfaceRecords(id,activeSeason=season,activeCareer=career){
+ const result=Object.fromEntries(['hard','clay','grass'].map(surface=>[surface,{wins:0,losses:0,played:0}]));
+ for(const m of playerMatchHistory(id,activeSeason,activeCareer)){
+  const r=result[m.surface];if(!r)continue;r.played++;if(m.winner===id)r.wins++;else r.losses++;
+ }
+ return result;
+}
+function playerMajorResults(id,activeSeason=season,activeCareer=career){
+ const events=[];
+ for(const e of activeSeason?.events||[])if(e.major&&e.champion){
+  const matches=(e.results||[]).filter(f=>f.players?.includes(id));
+  if(matches.length)events.push({year:activeCareer?.year||2026,event:e.name,wins:matches.filter(f=>f.winner===id).length,champion:e.champion===id});
+ }
+ for(const h of activeCareer?.majorHistory||[])if(h.id===id)events.push({...h});
+ return events.sort((a,b)=>b.year-a.year||a.event.localeCompare(b.event));
+}
+function playerDossierData(id,activeSeason=season,activeCareer=career){
+ const base=playerProfileData(id,activeSeason);if(!base)return null;
+ const rec=activeCareer?.records?.[id]||null;
+ const seasonResults=[...(rec?.seasonResults||[])].sort((a,b)=>b.year-a.year);
+ const surfaces=playerSurfaceRecords(id,activeSeason,activeCareer);
+ const majors=playerMajorResults(id,activeSeason,activeCareer);
+ const rivals=activeCareer?careerRivalries(activeCareer,id).slice(0,5).map(r=>({opponent:r.players.find(p=>p!==id),meetings:r.meetings,wins:r.wins?.[id]||0})):[];
+ return {...base,id,age:PLAYERS.find(p=>p.id===id)?.age??null,career:rec,seasonResults,surfaces,majors,rivals};
+}
+function renderPlayerProfile(){
+ const d=playerDossierData(profilePlayer.value);
+ if(!d){playerProfile.textContent='Choose a player';return}
+ const esc=v=>String(v??'—').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const r=d.record,cr=d.career;
+ const metrics=[['Season points',r?.points??0],['Season W–L',r?`${r.wins}–${r.losses}`:'0–0'],['Career titles',cr?.titles??0],['Grand Slams',cr?.majors??0],['Best year-end rank',cr?.bestRank?'#'+cr.bestRank:'—'],['Career W–L',cr?`${cr.wins}–${cr.losses}`:'—']];
+ const section=(title,body)=>`<section class="profileSection"><h4>${title}</h4>${body}</section>`;
+ const table=(headers,rows)=>`<table><thead><tr>${headers.map(x=>'<th>'+esc(x)+'</th>').join('')}</tr></thead><tbody>${rows.map(row=>'<tr>'+row.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')}</tbody></table>`;
+ const surfaceRows=Object.entries(d.surfaces).map(([name,v])=>[name[0].toUpperCase()+name.slice(1),v.wins,v.losses,v.played?Math.round(v.wins/v.played*100)+'%':'—']);
+ const yearRows=d.seasonResults.map(h=>[h.year,'#'+h.rank,h.points,h.wins+'–'+h.losses,h.titles]);
+ const majorRows=d.majors.map(h=>[h.year,h.event,h.champion?'Champion':h.wins+' match wins']);
+ const majorTitles=Object.entries(cr?.majorTitles||{}).map(([name,n])=>`${esc(name)} ×${n}`).join(' · ');
+ playerProfile.innerHTML=`<div class="profileDossier"><div><strong>${esc(d.name)}</strong> · ${esc(d.country)}${d.age?' · Age '+d.age:''} · ${esc(d.style)}<div class="muted">Form ${Math.round(d.form)}/100 · Confidence ${Math.round(d.confidence)}/100 · Illustrative player ratings</div></div><div class="profileMetrics">${metrics.map(([label,value])=>`<div class="profileMetric"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join('')}</div>${section('Surface match records',table(['Surface','Wins','Losses','Win rate'],surfaceRows))}${section('Grand Slam achievements',`<div>${majorTitles||'No major titles recorded yet.'}</div>${majorRows.length?table(['Year','Tournament','Result'],majorRows):'<p class="muted">Grand Slam results appear as tournaments are completed.</p>'}`)}${section('Season-by-season career',yearRows.length?table(['Year','Rank','Points','W–L','Titles'],yearRows):'<p class="muted">Finish a career year to record season statistics.</p>')}${section('Leading rivalries',d.rivals.length?table(['Opponent','Meetings','W–L'],d.rivals.map(h=>[safeName(h.opponent),h.meetings,h.wins+'–'+(h.meetings-h.wins)])):'<p class="muted">Rivalries appear after a completed career season.</p>')}${section('Player abilities',`<div class="profileBars">${Object.entries(d.attributes).map(([k,v])=>`<span>${esc(k)}: <b>${esc(v)}</b></span>`).join('')}</div>`)}</div>`;
+}
+profilePlayer.onchange=renderPlayerProfile;
+calendarFilter.onchange=()=>renderSeason();
+// v0.98: keep a single coherent snapshot so season and career cannot be
+// restored from two different save moments. Retain the legacy keys for older builds.
+const SNAPSHOT_SAVE_KEY='tennis-simulator-snapshot-v098';
+// v1.0: reject corrupt, inconsistent or unexpectedly large save payloads before
+// they can mutate the live player roster. Keep the v0.98 storage key for migration.
+function validSavedCareer(c){
+ if(c===null||c===undefined)return true;
+ if(!c||typeof c!=='object'||!Number.isInteger(c.year)||c.year<2020||c.year>2200||!Array.isArray(c.roster)||c.roster.length<2||c.roster.length>300||!Array.isArray(c.history)||c.history.length>250)return false;
+ const ids=new Set();
+ for(const p of c.roster){if(!p||typeof p.id!=='string'||p.id.length>90||ids.has(p.id)||typeof p.name!=='string'||p.name.length>120)return false;ids.add(p.id)}
+ return true;
+}
+function validSavedSeason(loaded){
+ if(!(loaded&&Array.isArray(loaded.events)&&loaded.events.length===SEASON_EVENTS.length&&loaded.standings&&typeof loaded.standings==='object'&&!Array.isArray(loaded.standings)&&Number.isInteger(loaded.next)&&loaded.next>=0&&loaded.next<=SEASON_EVENTS.length&&loaded.events.every((e,i)=>e&&e.name===SEASON_EVENTS[i].name)))return false;
+ if(Object.keys(loaded.standings).length>300)return false;
+ for(const v of Object.values(loaded.standings))if(!v||!Number.isFinite(v.points)||v.points<0||!Number.isFinite(v.wins)||v.wins<0||!Number.isFinite(v.losses)||v.losses<0)return false;
+ return true;
+}
+function saveSeason(){if(!season||!validSavedSeason(season)||!validSavedCareer(career))return false;try{const snapshot={version:98,season,career:career||null,savedAt:Date.now()};localStorage.setItem(SNAPSHOT_SAVE_KEY,JSON.stringify(snapshot));return true}catch(e){return false}}
+
+function loadSeason(){try{
+ const raw=localStorage.getItem(SNAPSHOT_SAVE_KEY);
+ const snapshot=raw?JSON.parse(raw):null;
+ let loaded,loadedCareer;
+ if(snapshot){if(snapshot.version!==98||!validSavedSeason(snapshot.season)||!validSavedCareer(snapshot.career))return false;loaded=snapshot.season;loadedCareer=snapshot.career||null}
+ else{const legacy=localStorage.getItem(SEASON_SAVE_KEY);if(!legacy)return false;loaded=JSON.parse(legacy);if(!validSavedSeason(loaded))return false;const c=localStorage.getItem(CAREER_SAVE_KEY);loadedCareer=c?JSON.parse(c):null;if(!validSavedCareer(loadedCareer))return false}
+ // Restore the base roster before applying the saved career, avoiding stale
+ // prospect players or retired-player attributes from a previous session.
+ PLAYERS.splice(0,PLAYERS.length,...BASE_ROSTER.map(p=>({...p})));
+ career=loadedCareer;if(career)applyCareerRoster(career);
+ for(const p of PLAYERS)if(!loaded.standings[p.id])loaded.standings[p.id]={points:0,wins:0,losses:0,titles:0};
+ season=loaded;window.__activeCareerSeason=career?season:null;return true
+ }catch(e){return false}}
+const CAREER_ATTRS=['serve','return','ground','movement','consistency','aggression','net','clay','grass','hard'];
+const BASE_ROSTER=PLAYERS.map(p=>({...p}));
+// v0.86: persistent form/confidence and distinct tactical identities.
+function playerStyle(p){
+ const attack=(p.aggression||75)+(p.serve||80)*.30;
+ const defense=(p.return||80)+(p.movement||80)*.38+(p.consistency||80)*.22;
+ if((p.net||75)>=88&&attack>105)return 'All-court attacker';
+ if((p.serve||80)>=91&&attack>=108)return 'Power server';
+ if(defense>=143&&(p.aggression||75)<85)return 'Counterpuncher';
+ if((p.aggression||75)>=86)return 'Aggressive baseliner';
+ return 'Balanced baseliner';
+}
+function playerDevelopment(p,random){
+ p.form=clamp((p.form??50)+(random()-.5)*18,12,88);
+ p.confidence=clamp((p.confidence??50)+(random()-.5)*12,12,88);
+ p.consistency=clamp(p.consistency??80,55,99);
+ p.style=playerStyle(p);
+ return p;
+}
+function matchReadyPlayer(p,surface){
+ const form=clamp(p.form??50,0,100),confidence=clamp(p.confidence??50,0,100);
+ const boost=(form-50)*.055+(confidence-50)*.035;
+ const q={...p};
+ for(const key of ['serve','return','ground','movement','consistency'])q[key]=clamp(q[key]+boost,50,99);
+ const style=p.style||playerStyle(p);
+ if(style==='Power server')q.serve=clamp(q.serve+1.2,50,99);
+ else if(style==='Counterpuncher')q.return=clamp(q.return+1.1,50,99);
+ else if(style==='Aggressive baseliner')q.ground=clamp(q.ground+1,50,99);
+ else if(style==='All-court attacker')q.net=clamp(q.net+1.5,50,99);
+ q[surface]=clamp(q[surface]+(q[surface]-85)*.025,50,99);
+ return q;
+}
+function updateSeasonForm(c,s){
+ if(!c||!s)return;
+ const random=rng((s.seed^Math.imul(s.next+1,2246822519))>>>0);
+ for(const p of c.roster){
+  const rec=s.standings[p.id];if(!rec)continue;
+  const wins=rec.wins,played=rec.played;
+  const performance=played?((wins/played)-.5)*8:0;
+  p.form=clamp((p.form??50)*.78+50*.22+performance+(random()-.5)*8,10,90);
+  p.confidence=clamp((p.confidence??50)+performance*.42+(random()-.5)*5,10,90);
+  p.style=playerStyle(p);
+ }
+ applyCareerRoster(c);
+}
+const CAREER_AGES={djokovic:39,dimitrov:35,medvedev:30,sinner:25,alcaraz:23,fonseca:20,shelton:24,ruud:27,tsitsipas:28};
+function careerInitial(seed=2026){
+ const c={year:2026,seed:Number(seed),history:[],retired:[],injuries:{},records:{},rivalries:{},rankHistory:{},roster:BASE_ROSTER.map((p,i)=>({...p,age:CAREER_AGES[p.id]??(22+i%10),potential:Math.max(75,Math.min(98,p.ground+(i%5)-1)),form:50,confidence:50,style:playerStyle(p)})),prospects:0};
+ for(const p of c.roster)c.records[p.id]={titles:0,majors:0,majorTitles:{},wins:0,losses:0,bestRank:null,yearEndNo1:0,seasonResults:[]};
+ return c;
+}
+function applyCareerRoster(c){
+ if(!c||!Array.isArray(c.roster))return;
+ PLAYERS.splice(0,PLAYERS.length,...c.roster.map(p=>({...p})));
+ for(const select of [els.p1,els.p2,profilePlayer]){
+  const value=select.value;select.innerHTML='';for(const p of PLAYERS){const o=document.createElement('option');o.value=p.id;o.textContent=p.name;select.appendChild(o)}
+  select.value=PLAYERS.some(p=>p.id===value)?value:PLAYERS[0].id;
+ }
+}
+function careerSeason(seed,c){const next=createSeason(seed);next.careerUnavailable=[...c.retired,...Object.entries(c.injuries).filter(([,n])=>n>0).map(([id])=>id)];return next}
+function careerRecord(c,id){if(!c.records)c.records={};return c.records[id]??=( {titles:0,majors:0,majorTitles:{},wins:0,losses:0,bestRank:null,yearEndNo1:0,seasonResults:[]} )}
+function careerAchievements(c,id){const r=careerRecord(c,id);return {majors:r.majors||0,majorTitles:{...(r.majorTitles||{})},titles:r.titles,yearEndNo1:r.yearEndNo1,bestRank:r.bestRank,careerWins:r.wins}}
+function careerRivalries(c,id){return Object.values(c?.rivalries||{}).filter(h=>h.players.includes(id)).sort((a,b)=>b.meetings-a.meetings||a.players.join('|').localeCompare(b.players.join('|')))}
+function careerLeaders(c){return Object.entries(c?.records||{}).map(([id,r])=>({id,name:c.roster.find(p=>p.id===id)?.name||id,...r})).sort((a,b)=>(b.majors||0)-(a.majors||0)||b.titles-a.titles||b.wins-a.wins)}
+// v0.93 record book: all results come from completed, archived career seasons.
+function careerRecordBook(c){
+ if(!c)return {leaders:[],streaks:[],youngest:[],hall:[],milestones:[]};
+ const roster=Object.fromEntries((c.roster||[]).map(p=>[p.id,p]));
+ const records=Object.entries(c.records||{});
+ const leaders=records.map(([id,r])=>({id,name:roster[id]?.name||id,majors:r.majors||0,titles:r.titles||0,wins:r.wins||0,no1:r.yearEndNo1||0}));
+ const sort=(field)=>[...leaders].sort((a,b)=>b[field]-a[field]||a.name.localeCompare(b.name)).slice(0,10);
+ // Event results are archived in chronological order by season and tournament.
+ const running={},streaks=[];
+ for(const m of c.matchHistory||[]){
+  if(!m.winner||!Array.isArray(m.players)||m.players.length!==2)continue;
+  for(const id of m.players){const n=id===m.winner?(running[id]||0)+1:0;running[id]=n;if(n>0)streaks.push({id,name:roster[id]?.name||id,wins:n,year:m.year});}
+ }
+ streaks.sort((a,b)=>b.wins-a.wins||a.name.localeCompare(b.name));
+ // Age is captured at the moment a title is archived, not inferred for old saves.
+ const youngest=(c.championAges||[]).filter(x=>Number.isFinite(x.age)&&x.age>=15&&x.age<=50).sort((a,b)=>a.age-b.age||a.year-b.year).slice(0,10);
+ const hall=leaders.filter(x=>(c.retired||[]).includes(x.id)&&(x.majors>=1||x.titles>=5||x.no1>=1)).sort((a,b)=>b.majors-a.majors||b.titles-a.titles);
+ const milestones=leaders.flatMap(x=>[{id:x.id,name:x.name,kind:'100 career wins',value:100,achieved:x.wins>=100},{id:x.id,name:x.name,kind:'5 tour titles',value:5,achieved:x.titles>=5},{id:x.id,name:x.name,kind:'First Grand Slam',value:1,achieved:x.majors>=1},{id:x.id,name:x.name,kind:'Year-end world #1',value:1,achieved:x.no1>=1}].filter(v=>v.achieved));
+ return {leaders:sort('majors'),titleLeaders:sort('titles'),winLeaders:sort('wins'),no1Leaders:sort('no1'),streaks:streaks.filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i).slice(0,10),youngest,hall,milestones};
+}
+function renderRecordBook(){const el=$('recordBookPanel');if(!el)return;
+ if(!career){el.textContent='Start a career and finish a year to unlock the record book.';return;}
+ const data=careerRecordBook(career);
+ const esc=v=>String(v??'—').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const table=(heads,rows)=>rows.length?'<div style="overflow-x:auto"><table><thead><tr>'+heads.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'<p class="muted">No qualifying records yet.</p>';
+ const section=(title,html)=>'<section class="profileSection"><h4>'+title+'</h4>'+html+'</section>';
+ el.innerHTML='<div class="profileDossier">'+section('Most Grand Slam titles',table(['Player','Majors'],data.leaders.filter(x=>x.majors>0).map(x=>[x.name,x.majors])))+section('Most tour titles',table(['Player','Titles'],data.titleLeaders.filter(x=>x.titles>0).map(x=>[x.name,x.titles])))+section('Most career wins',table(['Player','Wins'],data.winLeaders.filter(x=>x.wins>0).map(x=>[x.name,x.wins])))+section('Year-end #1 finishes',table(['Player','Seasons'],data.no1Leaders.filter(x=>x.no1>0).map(x=>[x.name,x.no1])))+section('Longest recorded winning streaks',table(['Player','Consecutive wins','Year last recorded'],data.streaks.map(x=>[x.name,x.wins,x.year])))+section('Youngest recorded tournament champions',table(['Player','Event','Age','Year'],data.youngest.map(x=>[rosterName(x.id),x.event,x.age,x.year])))+section('Hall of Fame — retired greats',table(['Player','Majors','Titles','Year-end #1'],data.hall.map(x=>[x.name,x.majors,x.titles,x.no1])))+section('Career milestones',table(['Player','Achievement'],data.milestones.map(x=>[x.name,x.kind])))+'</div>';
+ function rosterName(id){return career.roster.find(p=>p.id===id)?.name||id;}
+}
+function careerRankings(c,id){return (c.rankHistory||{})[id]||[]}
+// Historical summaries are derived from recorded season and career results, not fabricated.
+function grandSlamHistory(c){return (c?.history||[]).flatMap(h=>(h.champions||[]).filter(e=>SEASON_EVENTS.some(t=>t.major&&t.name===e.event)).map(e=>({year:h.year,event:e.event,winner:e.winner}))).sort((a,b)=>b.year-a.year||SEASON_EVENTS.findIndex(e=>e.name===a.event)-SEASON_EVENTS.findIndex(e=>e.name===b.event))}
+function eventHistory(c,eventName){return (c?.history||[]).flatMap(h=>(h.champions||[]).filter(e=>e.event===eventName).map(e=>({year:h.year,event:e.event,winner:e.winner}))).sort((a,b)=>b.year-a.year)}
+function rivalryComparison(c,a,b){if(!a||!b||a===b)return {meetings:0,aWins:0,bWins:0,lastEvent:null,lastYear:null};const h=c?.rivalries?.[[a,b].sort().join('|')];return {meetings:h?.meetings||0,aWins:h?.wins?.[a]||0,bWins:h?.wins?.[b]||0,lastEvent:h?.lastEvent||null,lastYear:h?.lastYear||null}}
+function rankingChartData(c,id){return [...careerRankings(c,id)].filter(h=>Number.isFinite(h.rank)&&Number.isFinite(h.year)).sort((a,b)=>a.year-b.year)}
+function rankingChartSVG(data){if(!data.length)return '<p class="historyEmpty">Finish a career season to see ranking changes.</p>';
+ const w=480,h=210,pad={l:36,r:16,t:22,b:31},max=Math.max(1,...data.map(d=>d.rank)),minYear=data[0].year,maxYear=data[data.length-1].year;
+ const x=d=>pad.l+(maxYear===minYear?(w-pad.l-pad.r)/2:(d.year-minYear)/(maxYear-minYear)*(w-pad.l-pad.r));
+ const y=d=>pad.t+(d.rank-1)/Math.max(1,max-1)*(h-pad.t-pad.b);
+ const points=data.map(d=>x(d).toFixed(1)+','+y(d).toFixed(1)).join(' ');
+ const safe=v=>String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Year-end rank: ${safe(data.map(d=>d.year+' number '+d.rank).join(', '))}"><line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h-pad.b}" stroke="#678492"/><line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="#678492"/><text x="5" y="${pad.t+4}" fill="#b5d3df" font-size="11">#1</text><text x="4" y="${h-pad.b}" fill="#b5d3df" font-size="11">#${max}</text><polyline fill="none" stroke="#b9eb6e" stroke-width="3" stroke-linejoin="round" points="${points}"/>${data.map(d=>`<circle cx="${x(d)}" cy="${y(d)}" r="4" fill="#e9fbb1"><title>${safe(d.year)}: #${safe(d.rank)} (${safe(d.points)} pts)</title></circle>`).join('')}<text x="${pad.l}" y="${h-9}" fill="#b5d3df" font-size="11">${minYear}</text><text x="${w-pad.r}" y="${h-9}" fill="#b5d3df" font-size="11" text-anchor="end">${maxYear}</text></svg><div class="muted">Lower ranking number is better. Year-end positions only.</div>`;
+}
+function renderCareerHistory(){const selects=['historyPlayer','rivalA','rivalB'];for(const id of selects){const el=$(id);if(!el)return;el.dataset??={};const old=el.value,ids=career?.roster||PLAYERS;const signature=ids.map(p=>p.id).join('|');if(el.dataset.roster!==signature){el.innerHTML='';for(const p of ids){const opt=document.createElement('option');opt.value=p.id;opt.textContent=p.name;el.appendChild(opt)}el.dataset.roster=signature;el.value=ids.some(p=>p.id===old)?old:(id==='rivalB'?(ids[1]?.id||ids[0]?.id):ids[0]?.id)}}
+ const hp=$('historyPlayer'),a=$('rivalA'),b=$('rivalB'),chart=$('rankingsChart'),rival=$('rivalryDetails'),slam=$('slamHistory'),history=$('eventHistory'),eventSelect=$('historyEvent');
+ if(!eventSelect.options?.length){for(const e of SEASON_EVENTS){const opt=document.createElement('option');opt.value=e.name;opt.textContent=e.name;eventSelect.appendChild(opt)}}
+ chart.innerHTML=career?rankingChartSVG(rankingChartData(career,hp.value)):'<p class="historyEmpty">Start a career to unlock rankings history.</p>';
+ const v=rivalryComparison(career,a.value,b.value);rival.innerHTML=career?(a.value===b.value?'<p class="historyEmpty">Choose two different players.</p>':`<div class="historyMetric">${safeName(a.value)} ${v.aWins} — ${v.bWins} ${safeName(b.value)}</div><div>${v.meetings} recorded meetings</div><div class="muted">${v.lastEvent?'Last met: '+v.lastEvent+' ('+v.lastYear+')':'No completed head-to-head meetings recorded yet.'}</div>`):'<p class="historyEmpty">Career rivalries appear after completing a season.</p>';
+ const slams=grandSlamHistory(career);slam.innerHTML=slams.length?'<table><thead><tr><th>Year</th><th>Major</th><th>Champion</th></tr></thead><tbody>'+slams.map(r=>`<tr><td>${r.year}</td><td>${r.event}</td><td>${safeName(r.winner)}</td></tr>`).join('')+'</tbody></table>':'<p class="historyEmpty">Complete a career season to record major champions.</p>';
+ const events=eventHistory(career,eventSelect.value);history.innerHTML=events.length?'<table><thead><tr><th>Year</th><th>Champion</th></tr></thead><tbody>'+events.map(r=>`<tr><td>${r.year}</td><td>${safeName(r.winner)}</td></tr>`).join('')+'</tbody></table>':'<p class="historyEmpty">No recorded champions for this event yet.</p>';
+}
+for(const id of ['historyPlayer','rivalA','rivalB','historyEvent'])$(id).onchange=renderCareerHistory;
+function startCareer(seed){career=careerInitial(seed);applyCareerRoster(career);season=careerSeason(seed,career);window.__activeCareerSeason=season;return career}
+function advanceCareerYear(c,s){
+ if(!s.finished)throw Error('Finish the season before advancing the career year');
+ const ranked=seasonRankings(s),champion=ranked[0];
+ c.rankHistory??={};
+ for(const [index,entry] of ranked.entries()){
+  const rec=careerRecord(c,entry.id),rank=index+1;
+  rec.titles+=entry.titles;rec.majors??=0;rec.majorTitles??={};for(const e of s.events){if(e.major&&e.champion===entry.id){rec.majors++;rec.majorTitles[e.name]=(rec.majorTitles[e.name]||0)+1}}rec.wins+=entry.wins;rec.losses+=entry.played-entry.wins;
+  rec.bestRank=rec.bestRank===null?rank:Math.min(rec.bestRank,rank);
+  if(index===0)rec.yearEndNo1++;
+  rec.seasonResults.push({year:c.year,rank,points:entry.points,wins:entry.wins,losses:entry.played-entry.wins,titles:entry.titles});
+  (c.rankHistory[entry.id]??=[]).push({year:c.year,rank,points:entry.points});
+ }
+ c.rivalries??={};
+ for(const event of s.events)for(const f of event.results||[]){
+  if(!f.winner||!f.players?.every(Boolean))continue;
+  const pair=[...f.players].sort(),key=pair.join('|');
+  const h=c.rivalries[key]??={players:pair,meetings:0,wins:{},lastYear:null,lastEvent:null};
+  h.meetings++;h.wins[f.winner]=(h.wins[f.winner]||0)+1;h.lastYear=c.year;h.lastEvent=event.name;
+ }
+ c.matchHistory??=[];c.majorHistory??=[];
+ for(const event of s.events){
+  for(const f of event.results||[])if(f.winner&&f.players?.every(Boolean))c.matchHistory.push({year:c.year,event:event.name,surface:event.surface,major:!!event.major,players:[...f.players],winner:f.winner,score:f.score});
+  if(event.major&&event.results)for(const id of event.entrants||[]){const played=event.results.filter(f=>f.players?.includes(id));if(played.length)c.majorHistory.push({id,year:c.year,event:event.name,wins:played.filter(f=>f.winner===id).length,champion:event.champion===id});}
+ }
+ c.championAges??=[];
+ for(const event of s.events){if(!event.champion)continue;const winner=c.roster.find(p=>p.id===event.champion);if(winner&&Number.isFinite(winner.age))c.championAges.push({id:winner.id,event:event.name,year:c.year,age:winner.age,major:!!event.major});}
+ c.history.push({year:c.year,numberOne:champion.id,points:champion.points,champions:s.events.map(e=>({event:e.name,winner:e.champion}))});
+ c.year++;
+ const random=rng((c.seed+Math.imul(c.year,73856093))>>>0);
+ const nextInjuries={};
+ for(const [id,years] of Object.entries(c.injuries||{}))if(years>1)nextInjuries[id]=years-1;
+ for(const p of c.roster){
+  if(c.retired.includes(p.id))continue;
+  p.age++;
+  const ageFactor=p.age<=24?1.15:p.age<=29?.35:p.age<=32?-.35:-1.1;
+  for(const k of CAREER_ATTRS){
+   const growth=(random()-.48)*1.8+ageFactor*(k==='aggression'?.35:1);
+   const ceiling=(k==='aggression'?99:Math.max(78,p.potential+3));
+   p[k]=Math.round(clamp(p[k]+growth,55,ceiling)*10)/10;
+  }
+  playerDevelopment(p,random);
+  if(p.age>=36&&random()<Math.min(.92,.10+(p.age-35)*.11))c.retired.push(p.id);
+  else if(!nextInjuries[p.id]&&random()<.12)nextInjuries[p.id]=random()<.20?2:1;
+ }
+ c.injuries=nextInjuries;
+ // Fictional prospects are clearly labelled to avoid confusing them with real players.
+ const names=['Ari Mercer','Leo Varga','Noah Takeda','Milan Costa','Eli Novak','Theo Marin','Kai Bennett','Luca Moretti'];
+ const id='prospect-'+(++c.prospects),name=names[(c.prospects-1)%names.length]+' (fictional)';
+ const p={id,name,country:'SIM',age:18,potential:87+Math.floor(random()*10),form:50,confidence:50};
+ for(const k of CAREER_ATTRS)p[k]=Math.round(73+random()*13);
+ p.style=playerStyle(p);c.roster.push(p);careerRecord(c,id);
+ applyCareerRoster(c);
+ const nextSeason=careerSeason((c.seed+Math.imul(c.year,2654435761))>>>0||1,c);window.__activeCareerSeason=nextSeason;return nextSeason;
+}
+function renderCareer(){const el=$('careerInfo');if(!el)return;
+ if(!career){renderRecordBook();renderCareerHistory();$('careerAchievementsPanel').textContent='Start a career to unlock historical records.';el.textContent='Career mode: start a multi-year save to track player development, retirements and season history.';return}
+ const ranked=season?seasonRankings(season):[];
+ el.innerHTML='<strong>Career '+career.year+'</strong> · '+career.history.length+' completed seasons · '+career.retired.length+' retired players · '+Object.keys(career.injuries).length+' injury absences'+
+ '<div>Year-end #1: '+(career.history.length?career.history.map(h=>h.year+' '+safeName(h.numberOne)).join(' · '):'Not yet completed')+'</div>'+
+ '<div>Injury report: '+(Object.entries(career.injuries).map(([id,n])=>safeName(id)+' ('+n+' season'+(n===1?'':'s')+' remaining)').join(' · ')||'No current absences')+'</div>'+
+ '<div>Recent arrivals: '+career.roster.filter(p=>p.id.startsWith('prospect-')).slice(-3).map(p=>p.name).join(', ')+'</div>';
+ const leaders=$('careerAchievementsPanel');if(leaders){const top=careerLeaders(career).slice(0,10);leaders.innerHTML='<strong>All-time career leaders</strong><div style="overflow-x:auto"><table><thead><tr><th>Player</th><th>Majors</th><th>Titles</th><th>Wins</th><th>Best rank</th></tr></thead><tbody>'+top.map(r=>'<tr><td>'+r.name+'</td><td>'+r.majors+'</td><td>'+r.titles+'</td><td>'+r.wins+'</td><td>'+(r.bestRank??'—')+'</td></tr>').join('')+'</tbody></table></div>';}
+ renderRecordBook();renderCareerHistory();$('careerNext').disabled=!season?.finished||!!activeSeasonFixture||!!activeFixture;
+}
+function seasonActionError(e){seasonEls.notice.textContent='Season error: '+e.message}
+function worldOverviewData(activeSeason=season,activeCareer=career){
+ if(!activeSeason)return {year:activeCareer?.year||null,completed:0,total:SEASON_EVENTS.length,leader:null,leaders:[],recent:[],upcoming:null,majors:0,retired:activeCareer?.retired?.length||0,prospects:activeCareer?.prospects||0};
+ const rankings=seasonRankings(activeSeason),done=activeSeason.events.filter(e=>e.champion),upcoming=activeSeason.events.find(e=>!e.champion)||null;
+ return {year:activeCareer?.year||2026,completed:done.length,total:activeSeason.events.length,leader:rankings[0]||null,leaders:rankings.slice(0,5),recent:done.slice(-4).reverse().map(e=>({name:e.name,champion:e.champion,major:!!e.major})),upcoming,majors:done.filter(e=>e.major).length,retired:activeCareer?.retired?.length||0,prospects:activeCareer?.prospects||0};
+}
+function renderWorldDashboard(){
+ const root=$('worldDashboard');if(!root)return;
+ const d=worldOverviewData();$('worldSubtitle').textContent=career?'Career '+d.year+' · '+career.history.length+' completed seasons':season?'Season overview · illustrative ATP-style tour':'Start a season or career to build your tennis world';
+ const stat=(value,label)=>'<div class="worldStat"><b>'+value+'</b><span>'+label+'</span></div>';
+ $('worldStats').innerHTML=stat(d.year??'—','Tour year')+stat(d.completed+'/'+d.total,'Events completed')+stat(d.majors+'/4','Majors played')+stat(career?d.prospects:'—','Career prospects');
+ $('worldLeaders').innerHTML=d.leaders.length?d.leaders.map((r,i)=>'<div class="worldRow"><span>#'+(i+1)+' '+safeName(r.id)+'</span><span>'+r.points+' pts</span></div>').join(''):'<div class="muted">Create a season to see rankings.</div>';
+ const news=[];
+ if(d.upcoming)news.push('Next: '+d.upcoming.name+' · '+d.upcoming.surface+' court'+(d.upcoming.major?' · Grand Slam':''));
+ if(d.leader)news.push('Current #1: '+safeName(d.leader.id)+' · '+d.leader.points+' ranking points');
+ for(const e of d.recent)news.push((e.major?'🏆 Grand Slam · ':'Tournament · ')+e.name+': '+safeName(e.champion)+' champion');
+ if(career?.history?.length){const h=career.history[career.history.length-1];news.push(h.year+' year-end #1: '+safeName(h.numberOne));}
+ if(career?.retired?.length)news.push(career.retired.length+' retired players in career history');
+ if(career&&Object.keys(career.injuries||{}).length)news.push(Object.keys(career.injuries).length+' players currently unavailable through injury');
+ $('worldNews').innerHTML=news.length?news.slice(0,8).map(n=>'<div class="worldNewsItem">'+n+'</div>').join(''):'<div class="muted">Tour results and career milestones will appear here.</div>';
+}
+for(const button of document.querySelectorAll('[data-world-jump]'))button.addEventListener('click',()=>$(button.dataset.worldJump)?.scrollIntoView?.({behavior:'smooth',block:'start'}));
+function renderSeason(){
+ renderWorldDashboard();
+ if(tourEls.mode.value==='season')seasonEls.content.classList.remove('tourHidden');else seasonEls.content.classList.add('tourHidden');
+ if(!season){renderCareer();seasonEls.notice.textContent='Create a season to begin the calendar.';seasonEls.calendar.innerHTML='';seasonEls.standings.innerHTML='';seasonEls.bracket.innerHTML='';return}
+ renderCareer();
+ const event=season.events[season.next];
+ seasonEls.notice.textContent=season.finished?'🏆 Season complete · #1 '+seasonRankings(season)[0].name:
+ `Event ${season.next+1} of ${season.events.length} · ${event.name} · ${event.bracket?event.bracket.completed+'/'+(event.bracket.entrants.length-1)+' matches played':'Draw not started'}`;
+ seasonEls.calendar.innerHTML=season.events.map((e,i)=>calendarFilter.value!=='all'&&e.surface!==calendarFilter.value?'':`<div class="seasonEvent ${e.champion?'done':i===season.next?'current':''}"><b>${i+1}. ${e.name}</b><small>${e.surface.toUpperCase()} · ${e.major?'GRAND SLAM · BEST OF FIVE':e.tier+' points'}</small><small>${e.champion?'🏆 '+safeName(e.champion):i===season.next?'UP NEXT':'Upcoming'}</small><small>${e.entrants.length?e.entrants.length+' entrants · '+(e.entryPlan?.wildcards?.length||0)+' wildcards · '+(e.entryPlan?.qualifiers?.length||0)+' qualifiers':''}</small><small>${e.defendingChampion?'Defending champion: '+safeName(e.defendingChampion):''}${e.seeds?.length?' · Top seed: '+safeName(e.seeds[0]):''}</small></div>`).join('');
+ renderPlayerProfile();seasonEls.standings.innerHTML='<table><thead><tr><th>#</th><th>Player</th><th>Points</th><th>Titles</th><th>W–L</th><th>Fatigue</th></tr></thead><tbody>'+seasonRankings(season).map((p,i)=>`<tr><td>${i+1}</td><td>${p.name}</td><td>${p.points}</td><td>${p.titles}</td><td>${p.wins}–${p.played-p.wins}</td><td>${Math.round(p.fatigue*100)}%</td></tr>`).join('')+'</tbody></table>';
+ const shown=event?.bracket||season.events[season.next-1]?.bracket;
+ seasonEls.bracket.innerHTML=shown?shown.rounds.map((round,r)=>`<div class="round"><h3>${roundName(shown.rounds.length,r)}</h3>${round.map(f=>`<div class="fixture"><div class="${f.winner===f.players[0]?'winner':''}">${safeName(f.players[0])}</div><div class="${f.winner===f.players[1]?'winner':''}">${safeName(f.players[1])}</div><div class="fixtureMeta">${f.score||'Not played'}${activeSeasonFixture===f.id?' · ON COURT':''}</div>${event?.bracket===shown&&f.players.every(Boolean)&&!f.winner?`<button data-season-watch="${f.id}">Watch</button> <button data-season-sim="${f.id}">Simulate</button>`:''}</div>`).join('')}</div>`).join(''):'';
+ for(const b of seasonEls.bracket.querySelectorAll('[data-season-watch]'))b.onclick=()=>watchSeasonFixture(b.dataset.seasonWatch);
+ for(const b of seasonEls.bracket.querySelectorAll('[data-season-sim]'))b.onclick=()=>{if(activeSeasonFixture||activeFixture)return;try{simulateSeasonFixture(season,b.dataset.seasonSim);saveSeason();renderSeason()}catch(e){seasonActionError(e)}};
+ $('nextSeasonEvent').disabled=season.finished||!!activeSeasonFixture||seasonBatchRunning;
+ $('finishSeason').disabled=season.finished||!!activeSeasonFixture||seasonBatchRunning;
+}
+function watchSeasonFixture(id){if(activeFixture||activeSeasonFixture||!season||season.finished)return;
+ const event=prepareSeasonEvent(season),f=fixtureById(event.bracket,id);
+ if(!f||f.winner||!f.players.every(Boolean))return;
+ activeSeasonFixture=id;match=seasonFixtureMatch(season,f);paused=false;accumulator=0;
+ els.speed.value='1';els.p1.value=f.players[0];els.p2.value=f.players[1];els.surface.value=event.surface;
+ els.summary.classList.remove('show');els.log.innerHTML='';addLog(event.name+' · '+safeName(f.players[0])+' vs '+safeName(f.players[1]));
+ $('pause').disabled=false;$('nextGame').disabled=false;
+ els.courtTag.textContent=event.surface.toUpperCase()+' · '+event.name.toUpperCase();
+ renderInfo();saveSeason();renderSeason();
+}
+function finalizeSeasonMatch(){if(!activeSeasonFixture||!match?.finished)return;
+ const id=activeSeasonFixture;activeSeasonFixture=null;
+ recordSeasonFixture(season,id,match);saveSeason();renderSeason();
+}
+$('openSeasonDraw').onclick=()=>{if(!season||season.finished||activeSeasonFixture||activeFixture)return;try{prepareSeasonEvent(season);saveSeason();renderSeason()}catch(e){seasonActionError(e)}};
+$('createSeason').onclick=()=>{if(activeFixture||activeSeasonFixture)return;try{career=null;window.__activeCareerSeason=null;PLAYERS.splice(0,PLAYERS.length,...BASE_ROSTER.map(p=>({...p})));season=createSeason(seasonEls.seed.value);saveSeason();renderSeason()}catch(e){seasonActionError(e)}};
+$('nextSeasonEvent').onclick=()=>{if(!season||activeSeasonFixture||activeFixture)return;try{simulateSeasonEvent(season);saveSeason();renderSeason()}catch(e){seasonActionError(e)}};
+let seasonBatchRunning=false;
+$('finishSeason').onclick=()=>{if(!season||activeSeasonFixture||activeFixture||seasonBatchRunning)return;
+ seasonBatchRunning=true;$('finishSeason').disabled=true;
+ // Process one event per task so progress can render and saves survive interruptions.
+ function nextBatch(){try{if(!season||season.finished){seasonBatchRunning=false;renderSeason();return}
+  simulateSeasonEvent(season);saveSeason();renderSeason();
+  if(season.finished){seasonBatchRunning=false;renderSeason()}else setTimeout(nextBatch,0);
+ }catch(e){seasonBatchRunning=false;seasonActionError(e);renderSeason()}}
+ setTimeout(nextBatch,0);
+};
+$('saveSeason').onclick=()=>{seasonEls.notice.textContent=saveSeason()?'Season saved on this browser.':'Unable to save. Browser storage may be disabled.'};
+$('loadSeason').onclick=()=>{if(activeSeasonFixture||activeFixture)return;seasonEls.notice.textContent=loadSeason()?'Saved season restored.':'No valid saved season found.';renderSeason()};
+$('clearSeason').onclick=()=>{if(activeSeasonFixture||activeFixture)return;try{localStorage.removeItem(SNAPSHOT_SAVE_KEY);localStorage.removeItem(SEASON_SAVE_KEY);localStorage.removeItem(CAREER_SAVE_KEY)}catch(e){}season=null;career=null;window.__activeCareerSeason=null;PLAYERS.splice(0,PLAYERS.length,...BASE_ROSTER.map(p=>({...p})));renderSeason()};
+loadSeason();renderSeason();
+
+$('audioEnabled').onchange=()=>{if(audioActive())audioSetup();else if('speechSynthesis' in window)window.speechSynthesis.cancel()};$('audioVolume').oninput=()=>{if(stadiumAudio.master)stadiumAudio.master.gain.value=Number($('audioVolume').value)/100*.34};$('start').onclick=start;$('pause').onclick=()=>{if(!match||match.finished)return;paused=!paused;renderInfo()};$('nextGame').onclick=()=>{if(!match||match.finished)return;instant(match,true)};$('reset').onclick=()=>{if(activeFixture||activeSeasonFixture){els.status.textContent='Finish the current fixture before resetting.';return}match=null;paused=true;accumulator=0;els.summary.classList.remove('show');els.log.innerHTML='';els.status.textContent='Select players and start a match.';els.badge.textContent='READY';$('pause').disabled=true;$('nextGame').disabled=true;renderScore();renderStats();renderInsights()};els.speed.onchange=()=>{if(match&&!match.finished&&els.speed.value==='instant'){instant(match);paused=true;renderInfo()}};
+function loop(now){audioAmbient(now);const elapsed=clamp((now-last)/1000,0,.12);last=now;if(match&&!paused&&!match.finished){if(els.speed.value==='instant'){instant(match);paused=true}else{accumulator+=elapsed*Number(els.speed.value);let n=0;while(accumulator>=1/120&&n++<180){step(match,1/120);accumulator-=1/120}if(n>=180)accumulator=0}}if(activeFixture&&match?.finished)finalizeTournamentMatch();if(activeSeasonFixture&&match?.finished)finalizeSeasonMatch();renderCourt();requestAnimationFrame(loop)}renderScore();renderStats();renderInsights();requestAnimationFrame(loop);
+
+// v0.91: compact touch navigation and disclosure controls. All panels remain visible on desktop.
+function mobileJump(id){
+ const target=document.getElementById(id);if(!target)return;
+ if(['worldDashboard','careerAchievementsPanel'].includes(id)&&$('mode').value!=='season'){$('mode').value='season';$('mode').dispatchEvent(new Event('change'))}
+ if(id==='matchExtras')setMobileDisclosure('toggleExtras','extrasPanels',true);
+ if(id==='careerAchievementsPanel')setMobileDisclosure('toggleHistory','careerHistoryGrid',true);
+ target.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+ document.querySelectorAll('[data-mobile-target]').forEach(b=>b.setAttribute('aria-current',b.dataset.mobileTarget===id?'page':'false'));
+}
+function setMobileDisclosure(buttonId,panelId,expanded){
+ const btn=$(buttonId),panel=$(panelId);if(!btn||!panel)return;
+ btn.setAttribute('aria-expanded',String(expanded));panel.classList.toggle('mobileExpanded',expanded);
+ btn.lastElementChild.textContent=expanded?'▴':'▾';
+}
+for(const [btnId,panelId] of [['toggleExtras','extrasPanels'],['toggleHistory','careerHistoryGrid']]){
+ $(btnId).addEventListener('click',()=>setMobileDisclosure(btnId,panelId,$(btnId).getAttribute('aria-expanded')!=='true'));
+}
+document.querySelectorAll('[data-mobile-target]').forEach(btn=>btn.addEventListener('click',()=>mobileJump(btn.dataset.mobileTarget)));
+
+
+// BreakPoint v1.01: route existing simulator views without recreating game state.
+function bpShowMode(view){
+ if(!['exhibition','tournament','season'].includes(view))return;
+ if(view!=='exhibition'&&activeFixture){$('tourNotice').textContent='Finish the active tournament match before changing modes.';return}
+ document.body.dataset.bpView=view;
+ if(view!=='exhibition'){
+  const mode=$('mode');if(mode.value!==view){mode.value=view;mode.dispatchEvent(new Event('change'))}
+ }
+ document.querySelectorAll('[data-bp-mode]').forEach(b=>b.setAttribute('aria-current',b.dataset.bpMode===view?'page':'false'));
+ window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-bp-mode]').forEach(b=>b.addEventListener('click',()=>bpShowMode(b.dataset.bpMode)));
+// Opening animation: ball passes through the letter O, then stops below it, drawing a white trail.
+(function bpOpening(){
+ const intro=$('bpIntro'),ball=$('bpIntroBall'),stage=$('bpIntroStage'),o=$('bpIntroO'),path=$('bpTrailPath');
+ let finished=false;const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const finish=()=>{if(finished)return;finished=true;intro.hidden=true;};
+ $('bpSkip').onclick=finish;
+ if(reduce){finish();return}
+ requestAnimationFrame(()=>{
+  const r=stage.getBoundingClientRect(),q=o.getBoundingClientRect();
+  const x=q.left-r.left+q.width/2,y=q.top-r.top+q.height/2;
+  const endX=x+85,endY=y+145;
+  const d=`M ${x} ${y} Q ${x+15} ${y+75} ${endX} ${endY}`;
+  path.setAttribute('d',d);
+  const len=path.getTotalLength();path.style.strokeDasharray=len;path.style.strokeDashoffset=len;
+  const size=ball.getBoundingClientRect().width;
+  const frames=[{transform:`translate(${x+280-size/2}px,${y-130-size/2}px) rotate(-100deg)`,opacity:0,offset:0},{transform:`translate(${x-size/2}px,${y-size/2}px) rotate(180deg)`,opacity:1,offset:.5},{transform:`translate(${endX-size/2}px,${endY-size/2}px) rotate(540deg)`,opacity:1,offset:1}];
+  ball.animate(frames,{duration:1650,delay:950,easing:'cubic-bezier(.32,.02,.2,1)',fill:'forwards'});
+  path.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:850,delay:1775,easing:'ease-out',fill:'forwards'});
+  setTimeout(finish,3850);
+ });
+})();
+
+window.TennisSimTest={validSavedCareer,validSavedSeason,tieBreakTarget,saveSeason,loadSeason,umpireScoreText,audioPoint,tacticalContext,tacticalRecoveryTarget,tacticalShot,playerMatchHistory,playerSurfaceRecords,playerMajorResults,playerDossierData,worldOverviewData,matchStyle,pointCalibration,eventRoundPoints,defendingChampion,eventSeedOrder,playerStyle,playerDevelopment,matchReadyPlayer,updateSeasonForm,entryPlan,grandSlamHistory,eventHistory,rivalryComparison,rankingChartData,rankingChartSVG,careerRivalries,careerLeaders,careerAchievements,careerRecord,careerRankings,careerInitial,startCareer,advanceCareerYear,careerSeason,applyCareerRoster,BALANCE,playerProfileData,roundName,SEASON_EVENTS,createSeason,seasonRankings,seasonEntrants,prepareSeasonEvent,simulateSeasonFixture,recordSeasonFixture,seasonFixtureMatch,simulateSeasonEvent,createTournament,seededDraw,availableFixtures,fixtureById,commitFixture,fixtureSeed,fixtureMatch,simulateFixture,simulateRound,fastForward,matchInsights,validateMatch,servicePositions,returnReadiness,serveSide,serveTarget,validServiceLanding,recoveryTargets,moveActor,PLAYERS,newMatch,pointOutcome,currentServer,pointLabels,choosePoint,instant,prepareRally,advanceRally,step,spinLabel,shotSpeed,reboundPhysics,racketHand,FAST_TRAIL_THRESHOLD};
+</script></body></html>
